@@ -8,9 +8,9 @@ gpoints=zeros(length(x)*length(x),3);
 for i=length(x):-1:1
          for j=length(x):-1:1
              m=m+1;
-      gpoints(m,1)=x(j);
-      gpoints(m,2)=x(i);
-      gpoints(m,3)=w(i)*w(j);
+             gpoints(m,1)=x(j);
+             gpoints(m,2)=x(i);
+             gpoints(m,3)=w(i)*w(j);
          end
 end
 
