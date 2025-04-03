@@ -1,5 +1,5 @@
 function gpoints=integration_GL(N)
-%selida 42/100
+%selida 42/103
 a=-1;
 b=1;
 [x,w]=lgwt(N,a,b);
