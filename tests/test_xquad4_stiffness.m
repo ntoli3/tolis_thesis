@@ -9,7 +9,9 @@ t  = 0.01;  % Πάχος 1cm
 
 
 % enrichment function:
-psi_handle = @(phi) Heaviside(phi);
+psi_handle = @(phi,grad_phi) sign_enr(phi,grad_phi);
+%psi_handle = @(phi,grad_phi) ramp_enr(phi,grad_phi);
+
 
 % Level set values at the 4 nodes
 % Example: phi = x - 0.5  -> interface x = 0.5

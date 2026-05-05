@@ -30,17 +30,17 @@ dN = invJ * [dN_dxi; dN_deta];
 % level set at gauss point
 phi_gauss = N_shape * nodal_level_sets;
 
-% enrichment functon and derivative wrt phi
-[psi_gauss, dpsi] = psi_handle(phi_gauss);
+%grad(phi) = [dphi/dx; dphi/dy];
+grad_phi = dN * nodal_level_sets;
+
+% enrichment functon and cartesian derivatives
+[psi_gauss, dpsi] = psi_handle(phi_gauss,grad_phi);
 
 % nodal psi values
 psi_nodes = zeros(4,1);
 for j = 1:4
-    [psi_nodes(j), ~] = psi_handle(nodal_level_sets(j));
+    [psi_nodes(j), ~] = psi_handle(nodal_level_sets(j), grad_phi);
 end
-
-% grad(phi) = [dphi/dx; dphi/dy]
-%grad_phi = dN * nodal_level_sets;
 
 % grad(psi) = dpsi/dphi * grad(phi)
 %grad_psi = dpsi * grad_phi;
