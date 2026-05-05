@@ -4,8 +4,8 @@ close all; clear; clc;
 nodes = [-1 -1; 1 -1; 1 1; -1 1]; % Ένα ορθογώνιο 2x2
 Eneg = 210e9; % Young Modulus (π.χ. Χάλυβας σε Pa) for psi < 0
 Epos = 100e9; % Young Modulus (π.χ. Χάλυβας σε Pa) for psi >= 0
-v  = 0.3;   % Poisson ratio
-t  = 0.01;  % Πάχος 1cm
+v  = 0.3;     % Poisson ratio
+t  = 0.01;    % Πάχος 1cm
 
 
 % enrichment function:
