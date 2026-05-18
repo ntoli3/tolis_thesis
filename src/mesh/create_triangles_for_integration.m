@@ -21,7 +21,7 @@ point_coords_list_natural = cell(num_elements,1);
 point_coords_list_cartesian = cell(num_elements,1);
 
 for e = 1 : num_elements
-     if intersected_elements(e,1) == 0
+     if intersected_elements(e,1) ~= 0
         continue
      end
 

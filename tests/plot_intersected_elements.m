@@ -25,14 +25,15 @@ for e = 1 : num_elements
     pgon = polyshape(X, Y);
     hold on
 
-    if intersected_elements(e) == 1
- 
+    if intersected_elements(e) == 0
        plot(pgon,'FaceColor','yellow','FaceAlpha',0.1);
         
-    else 
+    elseif intersected_elements(e) == 1
        plot(pgon,'FaceColor','blue','FaceAlpha',0.1);
-     
-     end
+    
+    else
+       plot(pgon,'FaceColor','red','FaceAlpha',0.1);
+    end
 
 end
 end

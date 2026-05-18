@@ -57,10 +57,10 @@ for i = 1 : size(gauss_points,1)
     
     kss = kss + w * kss_i * t;
     kse = kse + w * kse_i * t;
-    kee = kee + w * kee_i * t;
+    kee = kee + w * kee_i;
 end  
 
 k_total = [kss, kse;
-           kse', kee];
+           kse', kee] * t;
 end
 

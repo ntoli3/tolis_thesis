@@ -17,7 +17,7 @@ function [] = plot_intersection_triangles(node_coords_all, element_nodes,...
 num_elements = size(element_nodes,1);
 figure(fig)
 for e = 1 : num_elements
-    if intersected_elements(e) == 1
+    if intersected_elements(e) == 0
         % vriskw ta trigwna gia ayto to element  
         triangles = triangle_points_list{e};
         coords = point_coords_list{e};
