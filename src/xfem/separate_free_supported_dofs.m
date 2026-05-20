@@ -1,9 +1,10 @@
 function [free_dofs, supported_dofs] = separate_free_supported_dofs(...
     num_dofs_all, dof_order, supports)
-% Taxinomei kai prosdiorizei toys eleytherous kai desmeymenous dofs toy FEM
-% model
+% Taxinomei kai prosdiorizei toys eleytherous kai desmeymenous dofs toy FEM model
 % Input:
-% ...
+% num_dofs_all = total number of global DOFs in the model
+% dof_order = matrix containing the global numbering of the DOFs for each node
+% supports = matrix (num_supports x 2) containing the supported DOFs
 % Output:
 % free_dofs = dianysma poy periexei ta IDS twn free dofs
 % supported_dofs = dianysma poy periexei ta IDS twn supported dofs

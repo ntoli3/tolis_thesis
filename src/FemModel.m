@@ -47,7 +47,7 @@ classdef FemModel < handle
         
         % Mesh / level set intersections
         intersected_elements = []; % Gia kathe element periexei tin timi 0 an to element temnetai, 1 an to element vrisketai sti perioxi phi>0, -1 an to element vrisketai sti perioxi phi<0
-        enriched_nodes = []; 
+        enriched_nodes = []; % pinakas (num_nodes x 1) pou deixnei an o kombow einai enriched, 0 an kanonikos FEM kombos, 1 an XFEM enriched kombos 
         integration_points_cartesian = []; % lista ana stoixeio me syntetagmenes(cartesian) twn shmeiwn twn trigwnwn tou
         integration_points_natural = []; % lista ana stoixeio me syntetagmenes(natural) twn shmeiwn twn trigwnwn tou
         integration_triangles = []; % lista ana stoixeio me arithish twn shmeiwn twn trigwnwn tou
