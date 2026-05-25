@@ -21,3 +21,5 @@ end
 
 global_dofs = 1 : num_dofs_all; % e.g. [1,2,3,4,5,6,7,8]
 free_dofs = setdiff(global_dofs, supported_dofs); % e.g. [3,5,6,7,8]
+
+end

@@ -19,7 +19,7 @@ K = zeros(num_dofs, num_dofs);
 % Element stiffness
 for e = 1:num_elements
     k_elem = fem_model.buildElementStiffness(e);
-    elements_dofs = element_to_global_dofs(element_nodes, e, dofs_per_node);
+    elements_dofs = element_to_global_dofs_fem(element_nodes, e, dofs_per_node);
     K(elements_dofs, elements_dofs) = K(elements_dofs, elements_dofs) + k_elem;
 end
 

@@ -1,6 +1,5 @@
-function [global_dofs] = element_to_global_dofs(...
+function [global_dofs] = element_to_global_dofs_fem(...
   element_nodes, element_id, dofs_per_node)
-
 % Ypologizei ta katholika DOFS enos peperasmenoy stoixeioy me vasi ta IDS
 % twn komvon twn stoixeiwn
 % Input: 

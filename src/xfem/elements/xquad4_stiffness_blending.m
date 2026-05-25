@@ -1,24 +1,21 @@
-function [k_total] = xquad4_stiffness(nodes, E_neg, E_pos, v_neg, v_pos, t_neg, t_pos, nodal_level_sets, psi_handle)
+function [k_total] = xquad4_stiffness_blending(...
+    nodes, E, v, t, nodal_level_sets, psi_handle)
 % Calculate the stiffness matrix of a xfem Quad4 element
 % Input:
 % nodes = 4x2 matrix. Each row corresponds to one node. Column 1 = x
 %   coordinate of the node. Column 2 = y coordinate.
-% Eneg, Epos = Young modulus on each side of interface
-% v = Poisson ratio
-% t = element thickness
+% Eneg, Epos = Young's modulus for the negative and positive level set regions
+% v_neg, v_pos = Poisson's ratio for the negative and positive level set regions
+% t_neg, t_pos = Thickness of the element for the negative and positive regions
 % psi_handle = function handle for psi(x)
 % nodal_level_sets = 4x1 vector with level set values [phi1; phi2; phi3; phi4]
 % Output:
 % k_total = stiffness matrix of the element
 
 % Em = mitrwo elastikotitas (Ebdomada 5)
-Em_neg = (E_neg/(1-v_neg^2)) * [1  v_neg  0;
-                                v_neg  1  0;
-                                0  0  (1-v_neg)/2];
-
-Em_pos = (E_pos/(1-v_pos^2)) * [1  v_pos  0;
-                                v_pos  1  0;
-                                0  0  (1-v_pos)/2];
+Em = (E/(1-v^2)) * [1  v  0;
+                    v  1  0;
+                    0  0  (1-v)/2];
 
 % Arxikopoihsh
 kss = zeros(8, 8);
@@ -57,10 +54,10 @@ for i = 1 : size(gauss_points,1)
     
     kss = kss + w * kss_i * t;
     kse = kse + w * kse_i * t;
-    kee = kee + w * kee_i;
+    kee = kee + w * kee_i * t;
 end  
 
 k_total = [kss, kse;
-           kse', kee] * t;
+           kse', kee];
 end
 

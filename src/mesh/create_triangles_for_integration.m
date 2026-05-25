@@ -13,7 +13,7 @@ function [point_coords_list_cartesian, point_coords_list_natural, triangle_point
 % point coords list cartesian = lista ana stoixeio me syntetagmenes(cartesian) twn shmeiwn twn trigwnwn tou 
 % point coords list natural = lista ana stoixeio me syntetagmenes(natural) twn shmeiwn twn trigwnwn tou
 
-[intersected_elements] = check_intersection_elements_lsm (phi_nodes_all, element_nodes);
+[intersected_elements] = find_intersected_elements_lsm(phi_nodes_all, element_nodes);
 num_elements = size(element_nodes,1);
 
 triangle_points_list = cell(num_elements,1);

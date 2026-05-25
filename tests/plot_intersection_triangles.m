@@ -11,7 +11,7 @@ function [] = plot_intersection_triangles(node_coords_all, element_nodes,...
 % output:
 
 
-[intersected_elements] = check_intersection_elements_lsm (phi_nodes_all, element_nodes);
+[intersected_elements] = find_intersected_elements_lsm(phi_nodes_all, element_nodes);
 
 % pgon = polyshape([x1 x2 x3 x4], [y1 y2 y3 y4]);
 num_elements = size(element_nodes,1);

@@ -1,4 +1,5 @@
-function [k_total] = xquad4_stiffness(nodes, E_neg, E_pos, v_neg, v_pos, t_neg, t_pos, nodal_level_sets, psi_handle)
+function [k_total] = xquad4_stiffness_intersected(...
+    nodes, material_pos, material_neg, nodal_level_sets, psi_handle)
 % Calculate the stiffness matrix of a xfem Quad4 element
 % Input:
 % nodes = 4x2 matrix. Each row corresponds to one node. Column 1 = x
@@ -12,6 +13,13 @@ function [k_total] = xquad4_stiffness(nodes, E_neg, E_pos, v_neg, v_pos, t_neg, 
 % k_total = stiffness matrix of the element
 
 % Em = mitrwo elastikotitas (Ebdomada 5)
+E_neg = material_neg.E;
+v_neg = material_neg.v;
+t_neg = material_neg.thickness;
+E_pos = material_pos.E;
+v_pos = material_pos.v;
+t_pos = material_pos.thickness;
+
 Em_neg = (E_neg/(1-v_neg^2)) * [1  v_neg  0;
                                 v_neg  1  0;
                                 0  0  (1-v_neg)/2];
