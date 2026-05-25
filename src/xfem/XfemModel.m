@@ -48,7 +48,7 @@ classdef XfemModel < handle
         % Mesh / level set intersections
         intersected_elements = []; % Gia kathe element periexei tin timi 0 an to element temnetai, 1 an to element vrisketai sti perioxi phi>0, -1 an to element vrisketai sti perioxi phi<0
         elements_category = []; 
-        enriched_nodes = []; % pinakas (num_nodes x 1) pou deixnei an o kombos einai enriched, 0 an standard kombos, 1 an enriched kombos 
+        enriched_nodes = []; % pinakas (num_nodes x 1) pou periexei: 0 an standard kombos, 1 an enriched kombos 
         intersection_mesh; % Des IntersectionMesh
         
         %% Freedom degrees
@@ -177,9 +177,11 @@ classdef XfemModel < handle
                 error('Not implemented yet')
             end
             
-            build_element_stiffness_xfem(element_id, obj.node_coords, obj.element_nodes, ...
-                obj.elements_category, obj.intersected_elements, ...
-                obj.material_pos, obj.material_neg, obj.phi_nodes_all, obj.psi_handle);
+            build_element_stiffness_xfem(element_id, obj.node_coords, ...
+                obj.element_nodes, obj.enriched_nodes, obj.elements_category, ...
+                obj.intersected_elements, obj.intersection_mesh, ...
+                obj.material_pos, obj.material_neg, obj.phi_nodes_all, ...
+                obj.psi_handle);
         end
 
         function [u_elem] = extractElementDisplacements(obj, e, U_global)

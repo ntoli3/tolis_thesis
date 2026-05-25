@@ -1,6 +1,5 @@
-function [kss_i, kse_i, kee_i] = gauss_point_contribution(...
-    N_shape, dN_dxi, dN_deta, nodes, nodal_level_sets, psi_handle, ...
-    standard_enriched_nodes, num_enriched_dofs, Em)
+function [kss_i, kse_i, kee_i] = gauss_point_contribution_intersected(...
+    N_shape, dN_dxi, dN_deta, nodes, nodal_level_sets, Em, psi_handle)
 % Ypologizei th syneisfora enos shmeiou oloklhrwshs gauss stous pinakes
 % dyskampsias enos peperasmenou stoixeiou
 % Input:
@@ -45,10 +44,9 @@ end
 dpsi_dx = grad_psi(1);
 dpsi_dy = grad_psi(2);
 
-% Bs matrix
-Bs = zeros(3, 8);
-Be = zeros(3, num_enriched_dofs);
-k = 0;
+% Bs, Be matrix
+Bs = zeros(3,8);
+Be = zeros(3,8);
 for j = 1:4
     % Standard B
     dNj_dx = dN(1,j);
@@ -61,18 +59,14 @@ for j = 1:4
     Bs(3,2*j)   = dNj_dx;
 
     % Enriched B
-    if standard_enriched_nodes(j) == 1
-        k = k + 1;
+    diff_psi = psi_gauss - psi_nodes(j);
+    dNenr_dx = dNj_dx * diff_psi + Nj * dpsi_dx;
+    dNenr_dy = dNj_dy * diff_psi + Nj * dpsi_dy;
 
-        diff_psi = psi_gauss - psi_nodes(j);
-        dNenr_dx = dNj_dx * diff_psi + Nj * dpsi_dx;
-        dNenr_dy = dNj_dy * diff_psi + Nj * dpsi_dy;
-    
-        Be(1, 2*k-1) = dNenr_dx;
-        Be(2, 2*k)   = dNenr_dy; 
-        Be(3, 2*k-1) = dNenr_dy;
-        Be(3, 2*k)   = dNenr_dx;
-    end
+    Be(1,2*j-1) = dNenr_dx;
+    Be(2,2*j)   = dNenr_dy; 
+    Be(3,2*j-1) = dNenr_dy;
+    Be(3,2*j)   = dNenr_dx;
 end
 
 kss_i = (Bs' * Em * Bs) * detJ;

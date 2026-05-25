@@ -1,9 +1,11 @@
-function [k_total] = xquad4_stiffness_blending(...
-    nodes, E, v, t, nodal_level_sets, psi_handle)
+function [k_total] = xquad4_stiffness(node_coords_element, ...
+    standard_enriched_nodes, material_pos, material_neg, ...
+    nodal_level_sets, psi_handle, gauss_points)
 % Calculate the stiffness matrix of a xfem Quad4 element
 % Input:
-% nodes = 4x2 matrix. Each row corresponds to one node. Column 1 = x
+% node_coords_element = 4x2 matrix. Each row corresponds to one node. Column 1 = x
 %   coordinate of the node. Column 2 = y coordinate.
+% standard_enriched_nodes = 4x1 vector. 0=standard. 1 = enriched.
 % Eneg, Epos = Young's modulus for the negative and positive level set regions
 % v_neg, v_pos = Poisson's ratio for the negative and positive level set regions
 % t_neg, t_pos = Thickness of the element for the negative and positive regions
@@ -12,17 +14,27 @@ function [k_total] = xquad4_stiffness_blending(...
 % Output:
 % k_total = stiffness matrix of the element
 
-% Em = mitrwo elastikotitas (Ebdomada 5)
-Em = (E/(1-v^2)) * [1  v  0;
-                    v  1  0;
-                    0  0  (1-v)/2];
+% Em = mitrwo elastikotitas
+E_neg = material_neg.E;
+v_neg = material_neg.v;
+t_neg = material_neg.thickness;
+E_pos = material_pos.E;
+v_pos = material_pos.v;
+t_pos = material_pos.thickness;
+
+Em_neg = (E_neg/(1-v_neg^2)) * [1  v_neg  0;
+                                v_neg  1  0;
+                                0  0  (1-v_neg)/2];
+
+Em_pos = (E_pos/(1-v_pos^2)) * [1  v_pos  0;
+                                v_pos  1  0;
+                                0  0  (1-v_pos)/2];
 
 % Arxikopoihsh
+num_enriched_dofs = 2 * sum(standard_enriched_nodes == 1);
 kss = zeros(8, 8);
-kse = zeros(8,8);
-kee = zeros(8,8);
-
-gauss_points = gauss_integration_quad4(2,2);
+kse = zeros(8, num_enriched_dofs);
+kee = zeros(8, num_enriched_dofs);
 
 for i = 1 : size(gauss_points,1)
 
@@ -49,8 +61,9 @@ for i = 1 : size(gauss_points,1)
         error('not implemented')
     end
 
-    [kss_i, kse_i, kee_i] = gauss_point_contribution...
-        (N_shape, dN_dxi, dN_deta, nodes, nodal_level_sets, Em, psi_handle);
+    [kss_i, kse_i, kee_i] = gauss_point_contribution(N_shape, dN_dxi, dN_deta, ...
+        node_coords_element, nodal_level_sets, psi_handle, ...
+        standard_enriched_nodes, num_enriched_dofs, Em);
     
     kss = kss + w * kss_i * t;
     kse = kse + w * kse_i * t;
