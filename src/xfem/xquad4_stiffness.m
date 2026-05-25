@@ -3,9 +3,9 @@ function [k_total] = xquad4_stiffness(nodes, E_neg, E_pos, v_neg, v_pos, t_neg, 
 % Input:
 % nodes = 4x2 matrix. Each row corresponds to one node. Column 1 = x
 %   coordinate of the node. Column 2 = y coordinate.
-% Eneg, Epos = Young modulus on each side of interface
-% v = Poisson ratio
-% t = element thickness
+% Eneg, Epos = Young's modulus for the negative and positive level set regions
+% v_neg, v_pos = Poisson's ratio for the negative and positive level set regions
+% t_neg, t_pos = Thickness of the element for the negative and positive regions
 % psi_handle = function handle for psi(x)
 % nodal_level_sets = 4x1 vector with level set values [phi1; phi2; phi3; phi4]
 % Output:
