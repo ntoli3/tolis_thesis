@@ -10,7 +10,7 @@ P = 5000;
 model = FemModel();
 [mesh, node_coords, element_nodes] = create_mesh_quad4(21, 5, Lx, Ly);
 model.setMesh(mesh, node_coords, element_nodes);
-model.setMaterials(E, v, E, v, t);
+model.setMaterial(E, v, t);
 
 [nodes_left] = find_nodes_with_x(0.0, model);
 for n = 1:length(nodes_left)
@@ -25,7 +25,7 @@ for n = 1:length(nodes_right)
     model.addLoad(node_id, 2, - P / length(nodes_right));
 end
 
-analysis = LinearStaticAnalysis(model);
+analysis = LinearStaticAnalysisFem(model);
 analysis.initialize();
 U = analysis.run();
 analysis.plotResults(U, 0.5);

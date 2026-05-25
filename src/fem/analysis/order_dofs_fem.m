@@ -1,4 +1,4 @@
-function [free_dofs, supported_dofs] = order_dofs(fem_model)
+function [free_dofs, supported_dofs] = order_dofs_fem(fem_model)
 % Taxinomei kai prosdiorizei toys eleytherous kai desmeymenous dofs toy FEM
 % model
 % Input:

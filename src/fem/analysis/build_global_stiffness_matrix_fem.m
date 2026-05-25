@@ -1,4 +1,4 @@
-function [Kee] = build_global_stiffness_matrix(fem_model) 
+function [Kee] = build_global_stiffness_matrix_fem(fem_model) 
 
 % Ypologizei kai xtizei ton synoliko pinaka dyskampsias K
 % Input: 

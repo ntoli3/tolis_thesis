@@ -1,4 +1,4 @@
-classdef LinearStaticAnalysis < handle
+classdef LinearStaticAnalysisFem < handle
     % Performs multiple linear (elastic) static FEM analyses
     %   Detailed explanation goes here
 
@@ -7,7 +7,7 @@ classdef LinearStaticAnalysis < handle
     end
 
     methods
-        function obj = LinearStaticAnalysis(fem_model)
+        function obj = LinearStaticAnalysisFem(fem_model)
             % Constructor
      
             obj.fem_model = fem_model;
@@ -25,8 +25,8 @@ classdef LinearStaticAnalysis < handle
             % U = vector with displacements at all dofs (free and
             % supported)
             
-            Fe = build_forces_vector(obj.fem_model);
-            Kee = build_global_stiffness_matrix(obj.fem_model);
+            Fe = build_forces_vector_fem(obj.fem_model);
+            Kee = build_global_stiffness_matrix_fem(obj.fem_model);
             Ue = Kee \ Fe;
             
             free_dofs = obj.fem_model.free_dofs;

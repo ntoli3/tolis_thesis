@@ -1,4 +1,4 @@
-function [Fe] = build_forces_vector(fem_model)
+function [Fe] = build_forces_vector_fem(fem_model)
 % Builds the forces vectorize
 % Inputs:
 % fem_model: object of FemModel
