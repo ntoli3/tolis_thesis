@@ -1,17 +1,15 @@
-function [point_coords_list_cartesian, point_coords_list_natural, triangle_points_list] =...
+function [intersection_mesh] =...
     create_triangles_for_integration(...
     node_coords_all, element_nodes, phi_nodes_all)
 % vriskei ta shmeia tomhs twn element me th level set kai dhmiourgei trigwna...
 % mesw ths delaunay gia na kanoyme thn arithmitikh oloklhrwsh, douleuei...
 % prwta se fysikes syntetagmenes kai meta tis metatrepei se kartesiano
-% input:
-% node coords all = pinakas poy periexei tis syntetagmenes twn kombwn
-% element nodes = pinakas pou periexei toys kombous toy kathe element
-% phi nodes all = pinakas poy exei tis level sets olwn twn kombwn toy plegmatos
-% output: 
-% triangle points list = lista ana stoixeio me arithish twn shmeiwn twn trigwnwn tou 
-% point coords list cartesian = lista ana stoixeio me syntetagmenes(cartesian) twn shmeiwn twn trigwnwn tou 
-% point coords list natural = lista ana stoixeio me syntetagmenes(natural) twn shmeiwn twn trigwnwn tou
+% Input:
+% node_coords_all = pinakas poy periexei tis syntetagmenes twn kombwn
+% element_nodes = pinakas pou periexei toys kombous toy kathe element
+% phi_nodes_all = pinakas poy exei tis level sets olwn twn kombwn toy plegmatos
+% Output: 
+% intersection_mesh: Des IntersectionMesh
 
 [intersected_elements] = find_intersected_elements_lsm(phi_nodes_all, element_nodes);
 num_elements = size(element_nodes,1);
@@ -67,4 +65,7 @@ for e = 1 : num_elements
     point_coords_list_natural{e} = point_coords_elem_natural;
     point_coords_list_cartesian{e} = point_coords_elem_cartesian;
 end
+
+intersection_mesh = IntersectionMesh( ...
+    point_coords_list_cartesian, point_coords_list_natural, triangle_points_list);
 end

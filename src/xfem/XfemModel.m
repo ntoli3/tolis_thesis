@@ -49,9 +49,7 @@ classdef XfemModel < handle
         intersected_elements = []; % Gia kathe element periexei tin timi 0 an to element temnetai, 1 an to element vrisketai sti perioxi phi>0, -1 an to element vrisketai sti perioxi phi<0
         elements_category = []; 
         enriched_nodes = []; % pinakas (num_nodes x 1) pou deixnei an o kombos einai enriched, 0 an standard kombos, 1 an enriched kombos 
-        integration_points_cartesian = []; % lista ana stoixeio me syntetagmenes(cartesian) twn shmeiwn twn trigwnwn tou
-        integration_points_natural = []; % lista ana stoixeio me syntetagmenes(natural) twn shmeiwn twn trigwnwn tou
-        integration_triangles = []; % lista ana stoixeio me arithish twn shmeiwn twn trigwnwn tou
+        intersection_mesh; % Des IntersectionMesh
         
         %% Freedom degrees
         num_dofs_all;
@@ -144,8 +142,8 @@ classdef XfemModel < handle
             obj.intersected_elements = check_intersection_elements_lsm(...
                 obj.phi_nodes_all, obj.element_nodes);
 
-            [obj.integration_points_cartesian, obj.integration_points_natural, obj.integration_triangles] = ...
-                create_triangles_for_integration(obj.node_coords, obj.element_nodes, obj.phi_nodes_all);
+            obj.intersection_mesh = create_triangles_for_integration(...
+                obj.node_coords, obj.element_nodes, obj.phi_nodes_all);
             
             obj.enriched_nodes = find_enriched_nodes(...
                 obj.node_coords, obj.element_nodes, obj.intersected_elements);

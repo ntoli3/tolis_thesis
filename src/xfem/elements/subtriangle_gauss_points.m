@@ -8,15 +8,14 @@ function [xew] = subtriangle_gauss_points(num_gauss_points, triangle_points_natu
 
 [rsw] = triangle_gauss_points(num_gauss_points);
 
-n = size(rsw,1);
-xew = zeros(n,3);
+xew = zeros(num_gauss_points,3);
 
 % koryfes toy trigwnoy
 A = triangle_points_natural(1,:);
 B = triangle_points_natural(2,:);
 C = triangle_points_natural(3,:);
 
-for i = 1 : n 
+for i = 1 : num_gauss_points
     r = rsw(i,1);
     s = rsw(i,2);
     w = rsw(i,3);
