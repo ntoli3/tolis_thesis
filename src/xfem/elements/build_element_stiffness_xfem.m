@@ -17,10 +17,6 @@ function [ke] = build_element_stiffness_xfem(element_id, node_coords, element_no
 % Output:
 % ke = the stiffness matrix of the target element
 
-if obj.dimension ~= 2
-    error('Not implemented yet')
-end
-
 % Find coordinates of the nodes of this element
 nodes_of_element = zeros(4, 2);
 node_ids = element_nodes(element_id,:);
@@ -38,7 +34,7 @@ if elements_category(element_id) == 0 % Standard element
         material = material_neg;
     end
 
-    ke = quad4_stiffness(nodes_of_element, material.E, material.v, material.t);
+    ke = quad4_stiffness(nodes_of_element, material.E, material.v, material.thickness);
 
 else 
     % For the nodes of the element: a) level sets, b) are they standard/enriched
@@ -56,7 +52,7 @@ else
         gauss_points = gauss_integration_quad4(2, 2);
     end
 
-    ke = xquad4_stiffness(nodes, standard_enriched_nodes, material_pos, ...
+    ke = xquad4_stiffness(nodes_of_element, standard_enriched_nodes, material_pos, ...
         material_neg, nodal_level_sets, psi_handle, gauss_points);    
 end
 

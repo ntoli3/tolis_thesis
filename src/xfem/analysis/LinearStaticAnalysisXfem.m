@@ -26,18 +26,18 @@ classdef LinearStaticAnalysisXfem < handle
             % supported)
             
             Fe = build_forces_vector_xfem(obj.xfem_model);
-            Kee = build_global_stiffness_matrix_fem(obj.xfem_model);
+            Kee = build_global_stiffness_matrix_xfem(obj.xfem_model);
             Ue = Kee \ Fe;
             
-            free_dofs = obj.fem_model.free_dofs;
+            free_dofs = obj.xfem_model.free_dofs;
             num_free_dofs = length(free_dofs);
-            num_supported_dofs = length(obj.fem_model.supported_dofs);
+            num_supported_dofs = length(obj.xfem_model.supported_dofs);
             U = zeros(num_free_dofs + num_supported_dofs, 1);
             U(free_dofs, :) = Ue;
         end
 
         function plotResults(obj, U, scale)
-            plot_displacements(obj.fem_model, U, scale);
+            plot_displacements_xfem(obj.xfem_model, U, scale);
         end
     end
 end

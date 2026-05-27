@@ -17,6 +17,6 @@ for i = 1: size(loads, 1)
   F(dof_id, 1) = loads(i, 3);
 end
 
-Fe = F(xfem_mode.free_dofs);
+Fe = F(xfem_model.free_dofs);
 
 end

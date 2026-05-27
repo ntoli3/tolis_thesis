@@ -13,7 +13,7 @@ function [global_dofs] = element_to_global_dofs_xfem(...
 num_nodes_per_element = size(element_nodes, 2);
 enriched_nodes_of_element = [];
 for n = 1:num_nodes_per_element
-    node_id = element_nodes(e, n);
+    node_id = element_nodes(element_id, n);
     if enriched_nodes(node_id) == 1
         node_id = element_nodes(element_id, n);
         enriched_nodes_of_element = [enriched_nodes_of_element; node_id];

@@ -35,7 +35,7 @@ phi_gauss = N_shape * nodal_level_sets;
 grad_phi = dN * nodal_level_sets;
 
 % enrichment functon and cartesian derivatives
-[psi_gauss, grad_psi] = psi_handle(phi_gauss,grad_phi);
+[psi_gauss, grad_psi] = psi_handle(phi_gauss, grad_phi);
 
 % nodal psi values
 psi_nodes = zeros(4,1);

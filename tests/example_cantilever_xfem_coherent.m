@@ -4,15 +4,15 @@ close all; clear; clc;
 Lx = 20.0;
 Ly = 4.0;
 t = 0.1;
-Eneg = 2E6;
-Epos = 200;
+E_neg = 2E6;
+E_pos = 200;
 v = 0.3;
 P = 500;
 
 % Mesh
-nnx = 21;
-nny = 5;
-model = FemModel();
+nnx = 22; % zugos arithmos
+nny = 6; % zugos arithmos
+model = XfemModel();
 [mesh, node_coords, element_nodes] = create_mesh_quad4(nnx, nny, Lx, Ly);
 model.setMesh(mesh, node_coords, element_nodes);
 model.setMaterials(E_pos, v, E_neg, v, t);
@@ -29,22 +29,18 @@ end
 [nodes_right] = find_nodes_with_x(Lx, model);
 for n = 1:length(nodes_right)
     node_id = nodes_right(n);
-    model.addLoad(node_id, 2, - P / length(nodes_right));
+    model.addLoad(node_id, 2, -P / length(nodes_right));
 end
 
 % Level set
 dx = Lx / (nnx - 1);
-interface_position = Lx / 2 - dx/2;
-phi = @(x, y) x - interface_position;
-model.describeLevelSet(phi);
+interface_position_y = Ly / 2;
+phi_handle = @(x, y) interface_position_y - y;
+psi_handle = @sign_enr;
+model.describeLevelSetAndEnrichment(phi_handle, psi_handle);
 
 % Run analysis
-analysis = LinearStaticAnalysis(model);
+analysis = LinearStaticAnalysisXfem(model);
 analysis.initialize();
 U = analysis.run();
-analysis.plotResults(U, 0.5);
-
-% Check results
-u_max = max(abs(U));
-I = 1/12 * t * Ly^3;
-u_expected = P*Lx^3 / (3*E*I);
+analysis.plotResults(U, 0.0001);
