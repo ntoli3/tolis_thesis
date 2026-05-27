@@ -166,6 +166,21 @@ classdef XfemModel < handle
             end
         end
 
+        function [num_dofs] = countElementDofs(obj, element_id)
+            % 
+            
+            num_dofs = 0;
+            num_nodes_per_element = size(obj.element_nodes, 2);
+            for n = 1 : num_nodes_per_element
+                node_id = obj.element_nodes(element_id, n);
+                if obj.enriched_nodes(node_id) == 0 % Standard node
+                    num_dofs = num_dofs + 2;
+                else
+                    num_dofs = num_dofs + 4;
+                end
+            end
+        end
+
         function [ke] = buildElementStiffness(obj, element_id)
             % Builds the stiffness matrix of an element
             % Input:

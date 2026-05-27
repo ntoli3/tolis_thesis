@@ -5,4 +5,7 @@ addpath(genpath(pwd));
 %example_intersection_mesh;
 %example_integration_subtriangles;
 %example_cantilever_fem
-example_cantilever_xfem
+
+example_cantilever_xfem_interface_y
+% example_cantilever_xfem_cohesive
+% example_cantilever_xfem_coherent
