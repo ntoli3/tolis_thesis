@@ -6,11 +6,11 @@ function [k_total] = xquad4_stiffness(node_coords_element, ...
 % node_coords_element = 4x2 matrix. Each row corresponds to one node. Column 1 = x
 %   coordinate of the node. Column 2 = y coordinate.
 % standard_enriched_nodes = 4x1 vector. 0=standard. 1 = enriched.
-% Eneg, Epos = Young's modulus for the negative and positive level set regions
-% v_neg, v_pos = Poisson's ratio for the negative and positive level set regions
-% t_neg, t_pos = Thickness of the element for the negative and positive regions
-% psi_handle = function handle for psi(x)
+% material_pos = material properties(E,v,t) for the positive level set region, phi > 0
+% material_neg = material properties(E,v,t) for the negative level set region, phi < 0
 % nodal_level_sets = 4x1 vector with level set values [phi1; phi2; phi3; phi4]
+% psi_handle = function handle for psi(x)
+% gauss_points = matrix containing the integration points and weights. Each row haw the form: [xi,eta,w] 
 % Output:
 % k_total = stiffness matrix of the element
 
@@ -34,7 +34,7 @@ Em_pos = (E_pos/(1-v_pos^2)) * [1  v_pos  0;
 num_enriched_dofs = 2 * sum(standard_enriched_nodes == 1);
 kss = zeros(8, 8);
 kse = zeros(8, num_enriched_dofs);
-kee = zeros(8, num_enriched_dofs);
+kee = zeros(num_enriched_dofs, num_enriched_dofs);
 
 for i = 1 : size(gauss_points,1)
 

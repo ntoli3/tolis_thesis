@@ -1,6 +1,13 @@
 function [elements_category] = find_blending_elements(...
     intersected_elements, enriched_nodes, element_nodes)
-%
+% This function classifies mesh elements into:  0 = standard element. 
+%   1 = intersected element. 2 = blending element
+% Input:
+% intersected_elements: vector indicating if an element is intersected by a interface 
+% 0 = intersected. 1 or -1 not intersected
+% enriched_nodes: vector indicating which nodes are enriched
+% 1 = enriched node. 0 = standard node
+% element_nodes: connectivity matrix. Each row contains the node IDs of one element 
 % Output:
 % elements_category: vector (num_elements x 1). 0 = standard element. 
 %   1 = intersected element. 2 = blending element

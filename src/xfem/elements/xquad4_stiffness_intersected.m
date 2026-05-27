@@ -1,15 +1,14 @@
 function [k_total] = xquad4_stiffness_intersected(...
     nodes, material_pos, material_neg, nodal_level_sets, psi_handle, gauss_points)
-% Calculate the stiffness matrix of a xfem Quad4 element
+% Calculate the stiffness matrix of an intersected xfem Quad4 element
 % Input:
 % nodes = 4x2 matrix. Each row corresponds to one node. Column 1 = x
-%   coordinate of the node. Column 2 = y coordinate.
-% Eneg, Epos = Young's modulus for the negative and positive level set regions
-% v_neg, v_pos = Poisson's ratio for the negative and positive level set regions
-% t_neg, t_pos = Thickness of the element for the negative and positive regions
-% psi_handle = function handle for psi(x)
+%       coordinate of the node. Column 2 = y coordinate.
+% material_pos = material properties(E,v,t) for the positive level set region, phi > 0
+% material_neg = material properties(E,v,t) for the negative level set region, phi < 0
 % nodal_level_sets = 4x1 vector with level set values [phi1; phi2; phi3; phi4]
-% gauss_points = 
+% psi_handle = function handle for psi(x)
+% gauss_points = matrix containing the integration points and weights. Each row haw the form: [xi,eta,w] 
 % Output:
 % k_total = stiffness matrix of the element
 

@@ -5,7 +5,7 @@ function [] = plot_subtriangle_gauss_points(node_coords_all, element_nodes,...
 % node coords all = pinakas poy periexei tis syntetagmenes twn kombwn
 % element nodes = pinakas pou periexei toys kombous toy kathe element
 % phi nodes all = pinakas(num_nodes,1) poy exei tis level sets olwn twn kombwn toy plegmatos
-% intersection_mesh = 
+% intersection_mesh = intersectionMesh object containing the subtriangle information of intersected elements
 % fig = o arithmos toy figure poy tha ginei h sxediash
 % output:
 

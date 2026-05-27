@@ -47,7 +47,7 @@ classdef XfemModel < handle
         
         % Mesh / level set intersections
         intersected_elements = []; % Gia kathe element periexei tin timi 0 an to element temnetai, 1 an to element vrisketai sti perioxi phi>0, -1 an to element vrisketai sti perioxi phi<0
-        elements_category = []; 
+        elements_category = []; % Vector (num_elements x 1) that classifies each finite element according to its relation with the interface
         enriched_nodes = []; % pinakas (num_nodes x 1) pou periexei: 0 an standard kombos, 1 an enriched kombos 
         intersection_mesh; % Des IntersectionMesh
         

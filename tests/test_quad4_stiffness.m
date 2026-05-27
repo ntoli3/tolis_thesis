@@ -1,39 +1,61 @@
-addpath(genpath('C:\coding\thesis\tolis_thesis'))
-savepath
-% 1. Δεδομένα Εισόδου
-nodes = [0 0; 3 0; 3 2; 0 2]; % Ένα ορθογώνιο 2x2
-E = 210e9;   % Young Modulus (π.χ. Χάλυβας σε Pa)
-v = 0.3;     % Poisson ratio
-t = 0.01;    % Πάχος 1cm
+close all; clear; clc;
 
-% 2. Κλήση της συνάρτησης
-k = quad4_stiffness(nodes, E, v, t);
+% 1. Element geometry
+node_coords_element = [-1 -1; 
+                        1 -1; 
+                        1  1; 
+                       -1  1]; 
 
-% 3. ΕΛΕΓΧΟΙ
-fprintf('--- ΕΛΕΓΧΟΣ ΑΠΟΤΕΛΕΣΜΑΤΩΝ ---\n');
+% 2. Materials
+material_neg = struct('E', 210e9, 'v', 0.3, 'thickness', 0.01);
+material_pos = struct('E', 100e9, 'v', 0.3, 'thickness', 0.01);
 
-% Έλεγχος Συμμετρίας: k - k' πρέπει να είναι μηδέν
-sym_error = max(max(abs(k - k')));
-fprintf('Σφάλμα συμμετρίας: %e\n', sym_error);
+% 3. Enrichment function:
+% psi_handle = @(phi,grad_phi) sign_enr(phi,grad_phi);
+psi_handle = @(phi,grad_phi) ramp_enr(phi,grad_phi);
 
-% Έλεγχος Ιδιοτιμών: Πρέπει να υπάρχουν ακριβώς 3 μηδενικές τιμές
-eigenvalues = sort(eig(k));
-fprintf('3 Μικρότερες Ιδιοτιμές: %e, %e, %e\n', eigenvalues(1), eigenvalues(2), eigenvalues(3));
+% 4. Level-set values
+% All phi values have the same sign.
+nodal_level_sets = [1.0;
+                    1.2;
+                    1.1;
+                    0.9];
 
-if eigenvalues(4) > 1e-5 && eigenvalues(3) < 1e-6
-    fprintf('ΑΠΟΤΕΛΕΣΜΑ: Το μητρώο φαίνεται σωστό (3 κινήσεις στερεού σώματος).\n');
-else
-    fprintf('ΠΡΟΣΟΧΗ: Κάτι δεν πάει καλά με τις ιδιοτιμές.\n');
-end
+% 5. Enriched/standard nodes of this element
+% Example: nodes 1 and 4 are enriched
+standard_enriched_nodes = [1;
+                           0;
+                           0;
+                           1];
 
-k_expected = [9.1667e8,  3.7500e8, -3.10897e8, -2.88462e7, -4.5833e8, -3.7500e8, -1.47436e8,  2.88462e7;
-              3.7500e8,  1.3333e9,  2.88462e7,  3.97436e8, -3.7500e8, -6.6667e8, -2.88462e7, -1.06410e9;
-             -3.10897e8, 2.88462e7,  9.1667e8, -3.7500e8, -1.47436e8, -2.88462e7, -4.5833e8,  3.7500e8;
-             -2.88462e7, 3.97436e8, -3.7500e8,  1.3333e9,  2.88462e7, -1.06410e9,  3.7500e8, -6.6667e8;
-             -4.5833e8, -3.7500e8, -1.47436e8,  2.88462e7,  9.1667e8,  3.7500e8, -3.10897e8, -2.88462e7;
-             -3.7500e8, -6.6667e8, -2.88462e7, -1.06410e9,  3.7500e8,  1.3333e9,  2.88462e7,  3.97436e8;
-             -1.47436e8, -2.88462e7, -4.5833e8,  3.7500e8, -3.10897e8,  2.88462e7,  9.1667e8, -3.7500e8;
-              2.88462e7, -1.06410e9,  3.7500e8, -6.6667e8, -2.88462e7,  3.97436e8, -3.7500e8,  1.3333e9 ];
+% 6. Standard 2x2 Gauss integration for QUAD4
+a = 1/sqrt(3);
+gauss_points = [-a, -a, 1;
+                 a, -a, 1;
+                 a,  a, 1;
+                -a,  a, 1];
 
-max_error = max(max(abs(k - k_expected)));
-fprintf('Μέγιστο σφάλμα σε σχέση με K_expected: %e\n', max_error);
+% 7. Compute XFEM stiffness matrix for blending element
+k_total = xquad4_stiffness(node_coords_element, ...
+    standard_enriched_nodes, material_pos, material_neg,...
+    nodal_level_sets, psi_handle, gauss_points);
+
+% 8. Show result
+disp('k_total = ');
+disp(k_total);
+
+% 9. Basic checks
+num_enriched_nodes = sum(standard_enriched_nodes == 1);
+expected_size = 8 + 2*num_enriched_nodes;
+
+fprintf('Size of k_total: %d x %d\n', size(k_total,1), size(k_total,2));
+fprintf('Expected size: %d x %d\n', expected_size, expected_size);
+fprintf('Symmetry error: %.3e\n', norm(k_total - k_total', 'fro'));
+
+assert(all(size(k_total) == [expected_size expected_size]), ...
+    'k_total has wrong size');
+
+assert(norm(k_total - k_total', 'fro') < 1e-6, ...
+    'k_total must be symmetric');
+
+disp('Blending xquad4_stiffness test passed successfully.');

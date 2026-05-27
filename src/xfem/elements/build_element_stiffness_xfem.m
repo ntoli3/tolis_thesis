@@ -4,6 +4,16 @@ function [ke] = build_element_stiffness_xfem(element_id, node_coords, element_no
 % Builds the stiffness matrix of an element
 % Input:
 % element_id = the ID of the target element
+% node_coords: matrix (num_nodes x 2) containing the global coordinates of all nodes
+% element_nodes: connectivity matrix (num_elements x num_nodes_per_element)
+% enriched_nodes_all: vector (num_nodes x 1) indicating if each node is enriched. 0 -> standard node. 1 -> enriched node
+% elements_category: vector (num_elements x 1) that classifies each element.  0 -> standard element. 1 -> intersected element. 2 -> blending element
+% intersected_elements: vector (num_elements x 1) describing the position of each element with respect to the interface.
+% intersection_mesh:  data structure containing information about the intersection between the interface and the finite element mesh.
+% material_pos: material properties for the positive level-set region, phi > 0.
+% material_neg: material properties for the negative level-set region, phi < 0.
+% phi_nodes_all: vector (num_nodes x 1) containing the level-set value phi at every node of the mesh.
+% psi_handle: handle to the enrichment function psi. This function is used inside the XFEM stiffness computation.
 % Output:
 % ke = the stiffness matrix of the target element
 
