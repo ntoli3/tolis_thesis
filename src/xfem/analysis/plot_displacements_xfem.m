@@ -25,7 +25,18 @@ patch('Faces', xfem_model.element_nodes, ...
       'EdgeColor', [0.7 0.7 0.7], ...
       'LineStyle', '--');
 
-% --- deformed mesh ---
+% --- deformed mesh: standard and blending elements ---
+num_elements_total = length(xfem_model.intersected_elements);
+num_intersected_elements = sum(xfem_model.intersected_elements == 0);
+num_std_blending_elements = num_elements_total - num_intersected_elements;
+
+std_blending_element_nodes = zeros(num_std_blending_elements, 4);
+e = 0;
+for element_id = 1 : num_elements_total
+    e = e + 1;
+    std_blending_element_nodes(e, :) = xfem_model.element_nodes(element_id, :);
+end
+
 patch('Faces', xfem_model.element_nodes, ...
       'Vertices', deformed_coords, ...
       'FaceColor', 'none', ...

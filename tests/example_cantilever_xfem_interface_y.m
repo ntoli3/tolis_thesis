@@ -9,9 +9,9 @@ E_pos = 200;
 v = 0.3;
 P = 500;
 
-% Mesh
-nnx = 22; % zugos arithmos
-nny = 6; % zugos arithmos
+% Mesh (πχ 22x6, 44x12, 66x18)
+nnx = 22; % zugos arithmos  
+nny = 6; % zugos arithmos 
 model = XfemModel();
 [mesh, node_coords, element_nodes] = create_mesh_quad4(nnx, nny, Lx, Ly);
 model.setMesh(mesh, node_coords, element_nodes);
@@ -36,7 +36,7 @@ end
 dx = Lx / (nnx - 1);
 interface_position_x = Lx / 2;
 phi_handle = @(x, y) x - interface_position_x;
-psi_handle = @ramp_enr;
+psi_handle = @ramp_enr; % Π.χ. @ramp_enr, @sign_enr
 model.describeLevelSetAndEnrichment(phi_handle, psi_handle);
 
 % Run analysis
