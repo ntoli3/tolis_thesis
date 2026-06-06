@@ -1,20 +1,22 @@
-function [val, derivatives_cartesian] = sign_enr(phi, grad_phi)
+function [psi, grad_psi] = sign_enr(phi, grad_phi)
 % ypologizei to proshmo ths level set kai epistrefei mhdenikes paragwgous
 % xwrizei to xwro se duo perioxes
 % input:
-% phi = h timh ths level set sto gauss point
-% grad_phi = gradient ths level set ws pros x,y
+% phi = h timh ths level set φ(x,y) sto gauss point
+% grad_phi = gradient ths level set φ(x,y) ws pros x,y
 % output:
-% val = h timh ths enrichment function 
-% derivatives_cartesian = oi merikes paragwgoi pros x,y
+% psi = h timh ths enrichment function ψ(x,y)
+% grad_psi = oi merikes paragwgoi της ψ(x,y) pros x,y
 
 % Sign enrichment: ψ = sign(φ), ∇ψ = 0
-val = sign(phi);
+psi = sign(phi);
 
-% ∇ψ = 0 (εκτός του interface όπου δεν ορίζεται)
-derivatives_cartesian = [0; 0];
-% dsign/dx = 0
-% dsing/dy = 0
+if nargin == 2
+    % ∇ψ = 0 (εκτός του interface όπου δεν ορίζεται)
+    grad_psi = [0; 0];
+else
+    grad_psi = NaN;
+end
 
 end
 

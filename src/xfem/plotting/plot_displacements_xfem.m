@@ -14,7 +14,7 @@ for n=1:num_nodes
     deformed_coords(n, 2) = deformed_coords(n, 2) + uy * scale;
 end
 
-figure;
+f = figure;
 hold on;
 axis equal;
 

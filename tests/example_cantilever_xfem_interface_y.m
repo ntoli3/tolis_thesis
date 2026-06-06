@@ -10,8 +10,8 @@ v = 0.3;
 P = 500;
 
 % Mesh (πχ 22x6, 44x12, 66x18)
-nnx = 22; % zugos arithmos  
-nny = 6; % zugos arithmos 
+nnx = 6; % zugos arithmos  
+nny = 2; % zugos arithmos 
 model = XfemModel();
 [mesh, node_coords, element_nodes] = create_mesh_quad4(nnx, nny, Lx, Ly);
 model.setMesh(mesh, node_coords, element_nodes);
@@ -43,4 +43,12 @@ model.describeLevelSetAndEnrichment(phi_handle, psi_handle);
 analysis = LinearStaticAnalysisXfem(model);
 analysis.initialize();
 U = analysis.run();
-analysis.plotResults(U, 0.005);
+
+% Plot results
+%analysis.plotResults(U, 0.005);
+plotter = XfemPlotter(model);
+plotter.initialize();
+fig = figure;
+plotter.plotInitialStructure(fig);
+plotter.plotGaussPoints(fig)
+plotter.plotDeformedStructure(U, fig, 0.005);

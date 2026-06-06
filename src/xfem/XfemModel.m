@@ -209,9 +209,40 @@ classdef XfemModel < handle
             % Output
             % u_elem = displacements at all dofs of the target element
 
-            global_dofs_of_elements = element_to_global_dofs( ...
-                obj.element_nodes, e, obj.dimension);
+            global_dofs_of_elements = element_to_global_dofs_xfem( ...
+                e, obj.element_nodes, obj.enriched_nodes, obj.dof_order);
             u_elem = U_global(global_dofs_of_elements);
+        end
+
+        function [phi] = interpolateLevelSets(obj, element_id, natural_coords)
+            % Finds the level set at a specific point inside an element.
+            % Input:
+            % element_id = the ID of the target element
+            % natural_coords = vector with the coordinates of the point in
+            %   the natural system of the element
+            % Output:
+            % phi = the level set at the target point
+
+            nodes = obj.element_nodes(element_id, :);
+            nodal_level_sets = obj.phi_nodes_all(nodes);
+            N = compute_shape_functions(natural_coords(1), natural_coords(2));
+            phi = N * nodal_level_sets;
+        end
+
+        function [u] = calcDisplacementsAt(obj, element_id, natural_coords, U_global)
+            % Calculate the displacement at a specific point inside an element.
+            % Input:
+            % element_id = the ID of the target element
+            % natural_coords = vector with the coordinates of the point in
+            %   the natural system of the element
+            % U_global = global vector of displacements at all dofs
+            % Output:
+            % u = 2x1 vector with the displacements of the target point
+            
+            [u_elem] = extractElementDisplacements(obj, element_id, U_global);
+            u = calc_displacements_xfem(natural_coords, element_id, ...
+                u_elem, obj.element_nodes, obj.elements_category, ...
+                obj.enriched_nodes, obj.phi_nodes_all, obj.psi_handle);
         end
     end
 end

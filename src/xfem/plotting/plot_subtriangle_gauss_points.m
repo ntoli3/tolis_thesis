@@ -46,8 +46,9 @@ for e = 1 : num_elements
     
     % Sxediazw ta gauss points
     hold on
-    plot(xy(:,1), xy(:,2), 'x', 'Color', 'y', 'LineWidth', 2, ...
+    h = plot(xy(:,1), xy(:,2), 'x', 'Color', 'y', 'LineWidth', 2, ...
         'MarkerSize', 4);
+    h.Annotation.LegendInformation.IconDisplayStyle = 'off';
 end
 
 end

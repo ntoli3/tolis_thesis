@@ -5,7 +5,7 @@ function [global_dofs] = element_to_global_dofs_xfem(...
 % element_id = arithmos ID toy stoixeiou gia to opoio theloyme ta DOFS
 % element_nodes = connectivity matrix (num_elements x num_nodes_per_element). Each row contains the global node IDs of one element.
 % enriched_nodes = vector (num_nodes x 1) indicating whether each node is enriched. 0 -> standard node. 1 -> enriched node
-% dofs_per_node = arithmos vathmwn eleytherias ana komvo 
+% dof_order = 
 % Output: 
 % global_dofs = katholikoi deiktes DOFS gia to stoixeio
 
