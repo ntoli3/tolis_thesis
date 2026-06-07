@@ -49,30 +49,12 @@ classdef XfemPlotter < handle
             % scale = proportionality coefficient. 1 = same as real
             %   displacements
             
-            % Calculate the displacmentes of the vertices
-            num_vertices = size(obj.plot_model.vertex_coords_cartesian, 1);
-            displacements = zeros(num_vertices, 2);
-            for v = 1 : num_vertices
-                xi = obj.plot_model.vertex_coords_natural(v,:);
-                elem = obj.plot_model.vertex_elements(v,:);
-                u = obj.xfem_model.calcDisplacementsAt(elem, xi, U_global);
-                displacements(v,:) = u';
-            end
-            displacements = obj.averageField(displacements);
-
-            % Calculate coordinates of the vertices in the deformed
-            % structure
-            vertices_coords_deformed = zeros(num_vertices, 2);
-            for v = 1 : num_vertices
-                x = obj.plot_model.vertex_coords_cartesian(v,:);
-                u = displacements(v,:);
-                vertices_coords_deformed(v,:) = x + scale * u;
-            end
+            vertex_coords_deformed = obj.calcDeformedStructure(U_global, scale);
             
             % Plot
             ax = obj.getAxes(fig);
             h = patch(ax, 'Faces', obj.plot_model.vertices_of_faces, ...
-              'Vertices', vertices_coords_deformed, ...
+              'Vertices', vertex_coords_deformed, ...
               'FaceColor', 'none', ...
               'EdgeColor', 'b', ...
               'LineWidth', 1.5);
@@ -91,13 +73,113 @@ classdef XfemPlotter < handle
                 obj.xfem_model.intersection_mesh, fig);
         end
 
-        function plotStressesDeformed(obj, scale)
+        function plotStrainsStresses(obj, U_global, smooth, scale)
+            % Plot the strains (εx, εy, γxy) and stresses (σx, σy, τxy).
+            % Input:
+            % U_global = global displacements
+            % smooth = 1 to average values at coincident vertices or 0 to
+            %   plot the raw results from XFEM
+            % scale = proportionality coefficient. 1 = same as real
+            %   displacements
+            
+            % Strain and stress fields
+            num_vertices = size(obj.plot_model.vertex_coords_cartesian, 1);
+            strains = zeros(num_vertices, 3);
+            stresses = zeros(num_vertices, 3);
+            vonMises = zeros(num_vertices, 1);% Von Mises stress
+            for v = 1 : num_vertices
+                xi = obj.plot_model.vertex_coords_natural(v,:);
+                elem = obj.plot_model.vertex_elements(v,:);
+                [e,s] = obj.xfem_model.calcStrainsStressesAt(elem, xi, U_global);
+                strains(v,:) = e';
+                stresses(v,:) = s';
+                vonMises(v) = sqrt(s(1)^2 + s(2)^2 - s(1)*s(2) + 3*s(3)^2);
+            end
+            
+            % Smoothing
+            if smooth == 1
+                strains = obj.smoothField(strains);
+                stresses = obj.smoothField(stresses);
+                vonMises = obj.smoothField(vonMises);
+            end
 
+            % Deformed coordinates
+            vertex_coords_deformed = obj.calcDeformedStructure(U_global, scale);
+
+            % Plot the fields
+            obj.plotFieldOnDeformedStructure(strains(:,1), '\epsilon_{xx}', vertex_coords_deformed);
+            obj.plotFieldOnDeformedStructure(strains(:,2), '\epsilon_{yy}', vertex_coords_deformed);
+            obj.plotFieldOnDeformedStructure(strains(:,3), '\gamma_{xy}', vertex_coords_deformed);
+            obj.plotFieldOnDeformedStructure(stresses(:,1), '\sigma_{xx}', vertex_coords_deformed);
+            obj.plotFieldOnDeformedStructure(stresses(:,2), '\sigma_{yy}', vertex_coords_deformed);
+            obj.plotFieldOnDeformedStructure(stresses(:,3), '\tau_{xy}', vertex_coords_deformed);
+            obj.plotFieldOnDeformedStructure(vonMises, '\sigma_V', vertex_coords_deformed);
         end
     end
 
     methods (Access = private)
-        function [smooth_field] = averageField(obj, field)
+        function [vertex_coords_deformed] = calcDeformedStructure(...
+                obj, U_global, scale)
+             % Calculate the displacements of the vertices
+            num_vertices = size(obj.plot_model.vertex_coords_cartesian, 1);
+            displacements = zeros(num_vertices, 2);
+            for v = 1 : num_vertices
+                xi = obj.plot_model.vertex_coords_natural(v,:);
+                elem = obj.plot_model.vertex_elements(v,:);
+                u = obj.xfem_model.calcDisplacementsAt(elem, xi, U_global);
+                displacements(v,:) = u';
+            end
+            displacements = obj.smoothField(displacements);
+
+            % Calculate coordinates of the vertices in the deformed
+            % structure
+            vertex_coords_deformed = zeros(num_vertices, 2);
+            for v = 1 : num_vertices
+                x = obj.plot_model.vertex_coords_cartesian(v,:);
+                u = displacements(v,:);
+                vertex_coords_deformed(v,:) = x + scale * u;
+            end
+        end
+
+        function [ax] = getAxes(~, fig)
+            ax = findobj(fig, 'Type', 'axes');
+            if isempty(ax)
+                ax = axes(fig);
+                hold(ax,'on');
+                axis(ax,'equal');
+                xlabel(ax,'x', 'FontSize',16);
+                ylabel(ax,'y', 'FontSize',16);
+            else
+                ax = ax(1);
+            end
+        end
+
+        function cmap = makeColorMap(obj)
+            % Blue for negative, white around 0, red for positive
+            n = 128;
+            blue  = [linspace(0,1,n)', linspace(0,1,n)', ones(n,1)];
+            red   = [ones(n,1), linspace(1,0,n)', linspace(1,0,n)'];
+            cmap = [blue; red];
+        end
+
+        function plotFieldOnDeformedStructure(obj, ...
+                field, field_name, vertex_coords_deformed)
+             % Plot the fields
+            fig = figure;
+            ax = obj.getAxes(fig);
+            patch(ax, 'Faces', obj.plot_model.vertices_of_faces, ...
+              'Vertices', vertex_coords_deformed, ...
+              'FaceVertexCData', field, ...
+              'FaceColor', 'interp', ...
+              'EdgeColor', 'k', ...
+              'LineWidth', 1.0);
+            cmap = obj.makeColorMap(); % blue -> white -> red
+            colormap(cmap);
+            colorbar(ax);
+            title(ax, field_name, 'FontSize', 20);
+        end
+
+        function [smooth_field] = smoothField(obj, field)
             % Averages the values of a field at coincident vertices
             
             coincident_vertices = obj.plot_model.coincident_vertices;
@@ -113,19 +195,6 @@ classdef XfemPlotter < handle
                 smooth_field(v1,:) = sum / length(group);
             end
         end
-
-        function [ax] = getAxes(~, fig)
-            ax = findobj(fig, 'Type', 'axes');
-            if isempty(ax)
-                ax = axes(fig);
-                hold(ax,'on');
-                axis(ax,'equal');
-                xlabel(ax,'x');
-                ylabel(ax,'y');
-            else
-                ax = ax(1);
-            end
-    end
 
     end
 end

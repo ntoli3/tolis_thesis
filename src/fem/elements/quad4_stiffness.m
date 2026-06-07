@@ -22,7 +22,7 @@ for i = 1: size(gauss_points, 1)
     w = gauss_points(i, 3);
 
     % Synarthseis sxhmatos
-    N = compute_shape_functions(xi, eta);
+    N = quad4_shape_functions(xi, eta);
 
     % Paragwgoi twn N1, N2, ...
     dN_dxi = 1/4 * [-(1-eta) (1-eta) (1+eta) -(1+eta)];

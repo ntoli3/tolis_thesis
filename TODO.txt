@@ -1,0 +1,8 @@
+- VonMises and multiple plots
+- Remove plotting from LinearStaticAnalysis.
+- Refactor stiffness matrix Quad4 and XQuad4
+- Fix the ramp enrichment. Right now, both regions od an intersected element behave the same (blending and std elements are ok).
+- Check that FEM and XFEM (with same material for both regions) give the same results
+- Cohesive interface. Different than sign enrichment. Needs integration over the intersection segments
+- Level set for multiple inclusions
+- Delete old files

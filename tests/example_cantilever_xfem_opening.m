@@ -52,3 +52,4 @@ fig = figure;
 plotter.plotInitialStructure(fig);
 %plotter.plotGaussPoints(fig)
 plotter.plotDeformedStructure(U, fig, 5E-4);
+plotter.plotStrainsStresses(U, 1, 5E-4);

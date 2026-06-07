@@ -167,7 +167,7 @@ classdef XfemModel < handle
         end
 
         function [num_dofs] = countElementDofs(obj, element_id)
-            % 
+            % Counts the dofs of a specific element
             
             num_dofs = 0;
             num_nodes_per_element = size(obj.element_nodes, 2);
@@ -199,21 +199,6 @@ classdef XfemModel < handle
                 obj.psi_handle);
         end
 
-        function [u_elem] = extractElementDisplacements(obj, e, U_global)
-            % Extracts the vector of displacements of a specific element
-            % from the global vector of displacements. Both vectors refer
-            % to all possible dofs (free and supported).
-            % Input
-            % e = The ID of the target element
-            % U_global = global vector of displacements at all dofs
-            % Output
-            % u_elem = displacements at all dofs of the target element
-
-            global_dofs_of_elements = element_to_global_dofs_xfem( ...
-                e, obj.element_nodes, obj.enriched_nodes, obj.dof_order);
-            u_elem = U_global(global_dofs_of_elements);
-        end
-
         function [phi] = interpolateLevelSets(obj, element_id, natural_coords)
             % Finds the level set at a specific point inside an element.
             % Input:
@@ -224,9 +209,9 @@ classdef XfemModel < handle
             % phi = the level set at the target point
 
             nodes = obj.element_nodes(element_id, :);
-            nodal_level_sets = obj.phi_nodes_all(nodes);
+            nodal_phi = obj.phi_nodes_all(nodes);
             N = compute_shape_functions(natural_coords(1), natural_coords(2));
-            phi = N * nodal_level_sets;
+            phi = N * nodal_phi;
         end
 
         function [u] = calcDisplacementsAt(obj, element_id, natural_coords, U_global)
@@ -239,10 +224,99 @@ classdef XfemModel < handle
             % Output:
             % u = 2x1 vector with the displacements of the target point
             
-            [u_elem] = extractElementDisplacements(obj, element_id, U_global);
-            u = calc_displacements_xfem(natural_coords, element_id, ...
-                u_elem, obj.element_nodes, obj.elements_category, ...
-                obj.enriched_nodes, obj.phi_nodes_all, obj.psi_handle);
+            u_elem = extractElementDisplacements(obj, element_id, U_global);
+            if obj.elements_category(element_id) == 0 % Standard element
+                u = quad4_displacements(natural_coords, u_elem);
+            else % intersected/blending element
+                nodal_phi = extractElementLevelSets(obj, element_id);
+                nodal_categories = obj.extractElementNodalCategories(element_id);
+                u = xquad4_displacements(natural_coords, u_elem, ...
+                    nodal_categories, nodal_phi, obj.psi_handle);
+            end
+        end
+
+        function [e, s] = calcStrainsStressesAt(obj, element_id, natural_coords, U_global)
+            % Calculate the displacement at a specific point inside an element.
+            % Input:
+            % element_id = the ID of the target element
+            % natural_coords = vector with the coordinates of the point in
+            %   the natural system of the element
+            % U_global = global vector of displacements at all dofs
+            % Output:
+            % e = 3x1 vector with the strains of the target point
+            % s = 3x1 vector with the stresses of the target point
+            
+            u_elem = extractElementDisplacements(obj, element_id, U_global);
+            nodal_coords = obj.extractElementCoordinates(element_id);
+            if obj.elements_category(element_id) == 0 % Standard element
+                if obj.intersected_elements(element_id) == 1 % Positive region
+                    material = obj.material_pos;
+                else % Negative region
+                    material = obj.material_neg;
+                end
+                [e, s] = quad4_strains_stresses(natural_coords, u_elem, ...
+                    nodal_coords, material.E, material.v);
+                
+            else % intersected/blending element
+                nodal_phi = extractElementLevelSets(obj, element_id);
+                nodal_categories = obj.extractElementNodalCategories(element_id);
+                [e, s] = xquad4_strains_stresses(natural_coords, u_elem, ...
+                    nodal_coords, nodal_categories, nodal_phi, obj.psi_handle, ...
+                    obj.material_pos, obj.material_neg);
+            end
+        end
+    end
+
+    methods (Access = private)
+        function [elem_coords] = extractElementCoordinates(obj, element_id)
+            % Extracts the coordinates of nodes of a specific element.
+            % Input
+            % element_id = The ID of the target element.
+            % Output
+            % elem_coords = coords of nodes of the target element.
+            
+            nodes = obj.element_nodes(element_id,:);
+            elem_coords = obj.node_coords(nodes,:);
+        end
+
+        function [u_elem] = extractElementDisplacements(obj, element_id, U_global)
+            % Extracts the vector of displacements of a specific element
+            % from the global vector of displacements. Both vectors refer
+            % to all possible dofs (free and supported).
+            % Input
+            % element_id = The ID of the target element
+            % U_global = global vector of displacements at all dofs
+            % Output
+            % u_elem = displacements at all dofs of the target element
+
+            global_dofs_of_elements = element_to_global_dofs_xfem( ...
+                element_id, obj.element_nodes, obj.enriched_nodes, ...
+                obj.dof_order);
+            u_elem = U_global(global_dofs_of_elements);
+        end
+
+        function [nodal_phi] = extractElementLevelSets(obj, element_id)
+            % Extracts the level sets of nodes of a specific element.
+            % Input
+            % element_id = The ID of the target element.
+            % Output
+            % nodal_phi = level sets at nodes of the target element.
+            
+            nodes = obj.element_nodes(element_id, :);
+            nodal_phi = obj.phi_nodes_all(nodes);
+        end
+
+        function [nodal_categories] = extractElementNodalCategories(obj, element_id)
+            % Extracts the categories (0=std, 1=enr) of nodes of a 
+            % specific element.
+            % Input
+            % element_id = The ID of the target element.
+            % Output
+            % nodal_categories = categories (0=std, 1=enr) of nodes of 
+            %   the target element.
+            
+            nodes = obj.element_nodes(element_id, :);
+            nodal_categories = obj.enriched_nodes(nodes);
         end
     end
 end
