@@ -45,7 +45,6 @@ analysis.initialize();
 U = analysis.run();
 
 % Plot results
-%analysis.plotResults(U, 0.005);
 plotter = XfemPlotter(model);
 plotter.initialize();
 fig = figure;

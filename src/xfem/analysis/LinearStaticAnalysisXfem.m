@@ -35,9 +35,5 @@ classdef LinearStaticAnalysisXfem < handle
             U = zeros(num_free_dofs + num_supported_dofs, 1);
             U(free_dofs, :) = Ue;
         end
-
-        function plotResults(obj, U, scale)
-            plot_displacements_xfem(obj.xfem_model, U, scale);
-        end
     end
 end

@@ -173,10 +173,23 @@ classdef XfemPlotter < handle
               'FaceColor', 'interp', ...
               'EdgeColor', 'k', ...
               'LineWidth', 1.0);
-            cmap = obj.makeColorMap(); % blue -> white -> red
-            colormap(cmap);
-            colorbar(ax);
             title(ax, field_name, 'FontSize', 20);
+
+            % Colors
+            field_min = min(field);
+            field_max = max(field);
+            if field_min < 0 && field_max > 0
+                max_abs = max(abs(field));
+                clim(ax, [-max_abs max_abs]);
+                cmap = obj.makeColorMap(); % blue -> white -> red
+                colormap(ax, cmap);
+            else
+                clim(ax, [field_min field_max]);
+                colormap(ax, turbo);
+            end
+            cb = colorbar(ax);
+            ticks = cb.Ticks;
+            cb.Ticks = unique(sort([ticks field_min field_max]));
         end
 
         function [smooth_field] = smoothField(obj, field)
