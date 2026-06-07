@@ -188,15 +188,28 @@ classdef XfemModel < handle
             % Output:
             % ke = the stiffness matrix of the target element
             
-            if obj.dimension ~= 2
-                error('Not implemented yet')
-            end
+            nodal_coords = obj.extractElementCoordinates(element_id);
+            if obj.elements_category(element_id) == 0 % Standard element
+                if obj.intersected_elements(element_id) == 1
+                    material = obj.material_pos;
+                else
+                    material = obj.material_neg;
+                end
+                ke = quad4_stiffness(nodal_coords, material.E, material.v, material.thickness);
             
-            ke = build_element_stiffness_xfem(element_id, obj.node_coords, ...
-                obj.element_nodes, obj.enriched_nodes, obj.elements_category, ...
-                obj.intersected_elements, obj.intersection_mesh, ...
-                obj.material_pos, obj.material_neg, obj.phi_nodes_all, ...
-                obj.psi_handle);
+            else 
+                if obj.elements_category(element_id) == 1 % Intersected element
+                    gauss_points = integration_with_subtriangles(...
+                        element_id, obj.intersection_mesh, 3);
+                else % Blending element
+                    gauss_points = gauss_integration_quad4(2, 2);
+                end
+                
+                nodal_phi = extractElementLevelSets(obj, element_id);
+                nodal_categories = obj.extractElementNodalCategories(element_id);
+                ke = xquad4_stiffness(nodal_coords, nodal_categories, nodal_phi, obj.psi_handle, ...
+                    obj.material_pos, obj.material_neg, gauss_points);    
+            end
         end
 
         function [phi] = interpolateLevelSets(obj, element_id, natural_coords)
@@ -249,9 +262,9 @@ classdef XfemModel < handle
             u_elem = extractElementDisplacements(obj, element_id, U_global);
             nodal_coords = obj.extractElementCoordinates(element_id);
             if obj.elements_category(element_id) == 0 % Standard element
-                if obj.intersected_elements(element_id) == 1 % Positive region
+                if obj.intersected_elements(element_id) == 1
                     material = obj.material_pos;
-                else % Negative region
+                else
                     material = obj.material_neg;
                 end
                 [e, s] = quad4_strains_stresses(natural_coords, u_elem, ...
