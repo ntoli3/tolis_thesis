@@ -1,0 +1,41 @@
+classdef RidgeEnrichment < EnrichmentInterface
+    % XFEM enrichment function: ψ(x) = Σ(Ni(x)*|φi|) − |Σ(Ni(x)*φi)|,
+
+    methods
+        function obj = RidgeEnrichment()
+            % Constructor
+        end
+
+        function [psi] = evaluate(obj, phi, N, nodal_phi)
+            % Evaluates ψ(x) at a point x0.
+            % Input:
+            % phi = value of level set at the point x0.
+            % N = row vector with the shape functions at the point x0. 
+            % nodal_phi = column vector with the level sets at the nodes of the element containing x0.
+            % Output:
+            % psi = values of the enrichment function at the point x0.
+            
+            % ψ(x) = Σ(N_i(x)*|φ_i|) − |Σ(Ni(x)*φi)|
+            psi = N*abs(nodal_phi) - abs(phi);
+        end
+
+        function [grad_psi] = evaluateDerivatives(obj, phi, N, dN_dx, nodal_phi)
+            % Evaluates the derivatives of ψ(x) at a point x0.
+            % Input:
+            % phi = value of level set at the point x0.
+            % N = row vector with the shape functions at the point x0. 
+            % dN_dx = matrix 2x4 containing the derivatives of the shape functions in the cartesian 
+            %   system at x0. Row 1 corrsponds to x-derivatives and row 2 to y-derivatives.
+            % nodal_phi = column vector with the level sets at the nodes of the element containing x0.
+            % Output:
+            % grad_psi = 2x1 vector with the gradient of the enrichment function at the point x.
+            
+            % ψ,x(x) = Σ(Ni,x(x)*|φi|) - sign( Σ(Ni(x)*φi) ) * Σ(Ni,x(x)*φi)
+            % ψ,y(x) = Σ(Ni,y(x)*|φi|) - sign( Σ(Ni(x)*φi) ) * Σ(Ni,y(x)*φi)
+            % ∇ψ = [ψ,x ; ψ,y]
+            s = sign(phi);
+            grad_phi = dN_dx * nodal_phi;
+            grad_psi = dN_dx * abs(nodal_phi) - s * grad_phi;
+        end
+    end
+end
