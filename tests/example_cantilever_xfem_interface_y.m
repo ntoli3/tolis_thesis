@@ -49,12 +49,9 @@ U = analysis.run();
 plotter = XfemPlotter(model);
 plotter.initialize();
 
-fig1 = figure;
-plotter.plotInitialStructure(fig1);
-plotter.plotGaussPoints(fig1);
+gauss_point_size = 6;
+plotter.plotGaussPoints(gauss_point_size);
 
-fig2 = figure;
 scale = 1E3;
-plotter.plotInitialStructure(fig2);
-plotter.plotDeformedStructure(U, fig2, scale);
+plotter.plotDisplacements(U, scale);
 plotter.plotStrainsStresses(U, 1, scale);

@@ -22,14 +22,16 @@ classdef XfemPlotter < handle
             obj.plot_model.initialize();
         end
 
-        function plotInitialStructure(obj, fig)
+        function plotDisplacements(obj, U_global, scale)
             % Plot the structure with nodes being translated proportionally
             % to their displacements
             % Input:
-            % fig = figure handle
+            % U_global = global displacements
             % scale = proportionality coefficient. 1 = same as real
             %   displacements
-
+            
+            % Plot initial geometry
+            fig = figure;
             ax = obj.getAxes(fig);
             h = patch(ax, 'Faces', obj.xfem_model.element_nodes, ...
               'Vertices', obj.xfem_model.node_coords, ...
@@ -37,22 +39,10 @@ classdef XfemPlotter < handle
               'EdgeColor', [0.7 0.7 0.7], ...
               'LineStyle', '--');
             h.DisplayName = 'Undeformed';
-            legend(ax,'show');
-        end
 
-        function plotDeformedStructure(obj, U_global, fig, scale)
-            % Plot the structure with nodes being translated proportionally
-            % to their displacements
-            % Input:
-            % U_global = global displacements
-            % fig = figure handle
-            % scale = proportionality coefficient. 1 = same as real
-            %   displacements
-            
             vertex_coords_deformed = obj.calcDeformedStructure(U_global, scale);
             
-            % Plot
-            ax = obj.getAxes(fig);
+            % Plot deformed geometry
             h = patch(ax, 'Faces', obj.plot_model.vertices_of_faces, ...
               'Vertices', vertex_coords_deformed, ...
               'FaceColor', 'none', ...
@@ -60,17 +50,39 @@ classdef XfemPlotter < handle
               'LineWidth', 1.5);
             h.DisplayName = 'Deformed';
             legend(ax,'show');
+
+            % Save as button
+            filename = 'displacements.fig';
+            obj.addSaveButton(filename, fig);
         end
         
-        function plotGaussPoints(obj, fig)
-            % Plot the gauss point at their coordinates in the undeformed 
-            % structure
+        function plotGaussPoints(obj, gauss_point_size)
+            % Plot the gauss point at their coordinates in the undeformed structure
             % Input:
-            % fig = figure handle
+            % gauss_point_size = marker size. E.g. 1, 2, 3
 
-            plot_subtriangle_gauss_points(obj.xfem_model.node_coords, ...
-                obj.xfem_model.element_nodes, obj.xfem_model.phi_nodes_all, ...
-                obj.xfem_model.intersection_mesh, fig, 'r');
+            fig = figure;
+            ax = obj.getAxes(fig);
+            
+            % Intersection mesh
+            patch(ax, 'Faces', obj.plot_model.vertices_of_faces, ...
+              'Vertices', obj.plot_model.vertex_coords_cartesian, ...
+              'FaceColor', 'none', ...
+              'EdgeColor', 'k', ...
+              'LineWidth', 1.0);
+            
+            % Gauss points
+            node_coords = obj.xfem_model.node_coords;
+            element_nodes = obj.xfem_model.element_nodes;
+            phi_nodes_all = obj.xfem_model.phi_nodes_all;
+            intersection_mesh = obj.xfem_model.intersection_mesh;
+
+            plot_subtriangle_gauss_points(node_coords, element_nodes, phi_nodes_all, ...
+                intersection_mesh, fig, 'r', gauss_point_size);
+
+            % Save as button
+            filename = 'gauss_points.fig';
+            obj.addSaveButton(filename, fig);
         end
 
         function plotStrainsStresses(obj, U_global, smooth, scale)
@@ -162,8 +174,8 @@ classdef XfemPlotter < handle
             cmap = [blue; red];
         end
 
-        function plotFieldOnDeformedStructure(obj, ...
-                field, field_name, vertex_coords_deformed)
+        function plotFieldOnDeformedStructure(obj, field, field_name, vertex_coords_deformed)
+
              % Plot the fields
             fig = figure;
             ax = obj.getAxes(fig);
@@ -190,6 +202,17 @@ classdef XfemPlotter < handle
             cb = colorbar(ax);
             ticks = cb.Ticks;
             cb.Ticks = unique(sort([ticks field_min field_max]));
+
+            % Save as button
+            filename = append(field_name, ".fig");
+            obj.addSaveButton(filename, fig);
+        end
+        
+        function addSaveButton(obj, filename, fig)
+            uicontrol('Style','pushbutton', ...
+                'String','Save Figure', ...
+                'Position',[10 10 100 30], ...
+                'Callback', @(src,event) save_my_figure(src, event, fig, filename));
         end
 
         function [smooth_field] = smoothField(obj, field)
