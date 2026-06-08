@@ -23,8 +23,14 @@ eta = natural_coords(2);
 N = 1/4 * [(1-xi)*(1-eta) (1+xi)*(1-eta) (1+xi)*(1+eta) (1-xi)*(1+eta)];
 dN_dxi = 1/4 * [-(1-eta) (1-eta) (1+eta) -(1+eta); 
                 -(1-xi) -(1+xi) (1+xi) (1-xi)];
+
 J = dN_dxi * nodal_coords;
 detJ = det(J);
+% Elegxos gia to J<=0
+if detJ <= 0
+    error('Non-positive Jacobian determinant detected.');
+end
+
 dN_dx = J \ dN_dxi;
 
 end

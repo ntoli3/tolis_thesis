@@ -39,9 +39,4 @@ Em = (E/(1-v^2)) * [1 v 0;
                     0 0 (1-v)/2]; % elasticity matrix
 s = Em * e;
 
-%%DEBUG
-% es = Bstd * nodal_u(1:8);
-% ee = Benr * nodal_u(9:end);
-%%
-
 end
