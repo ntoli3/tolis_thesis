@@ -1,5 +1,5 @@
-function [psi, grad_psi] = sign_enr(phi, grad_phi)
-% ypologizei to proshmo ths level set kai epistrefei mhdenikes paragwgous
+function [psi, grad_psi] = sign_enr_old(phi, grad_phi)
+% Ypologizei to proshmo ths level set kai epistrefei mhdenikes paragwgous
 % xwrizei to xwro se duo perioxes
 % input:
 % phi = h timh ths level set φ(x,y) sto gauss point

@@ -1,5 +1,5 @@
 function [] = plot_subtriangle_gauss_points(node_coords_all, element_nodes,...
-    phi_nodes_all, intersection_mesh, fig)
+    phi_nodes_all, intersection_mesh, fig, color)
 % sxediazei ta trigwna pou prokyptoun apo thn tomh twn stoixeiwn me thn kampylh 
 % input:
 % node coords all = pinakas poy periexei tis syntetagmenes twn kombwn
@@ -7,6 +7,7 @@ function [] = plot_subtriangle_gauss_points(node_coords_all, element_nodes,...
 % phi nodes all = pinakas(num_nodes,1) poy exei tis level sets olwn twn kombwn toy plegmatos
 % intersection_mesh = intersectionMesh object containing the subtriangle information of intersected elements
 % fig = o arithmos toy figure poy tha ginei h sxediash
+% color = text that describes the color. E.g. 'y' (yellow), 'r' (red), ...
 % output:
 
 
@@ -46,7 +47,7 @@ for e = 1 : num_elements
     
     % Sxediazw ta gauss points
     hold on
-    h = plot(xy(:,1), xy(:,2), 'x', 'Color', 'y', 'LineWidth', 2, ...
+    h = plot(xy(:,1), xy(:,2), 'x', 'Color', color, 'LineWidth', 2, ...
         'MarkerSize', 4);
     h.Annotation.LegendInformation.IconDisplayStyle = 'off';
 end

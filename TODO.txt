@@ -1,5 +1,5 @@
-- Fix the ramp enrichment. Right now, both regions od an intersected element behave the same (blending and std elements are ok).
-- Check that FEM and XFEM (with same material for both regions) give the same results
-- Cohesive interface. Different than sign enrichment. Needs integration over the intersection segments
+- Check that FEM and XFEM (with same material for both regions) give the same results.
+- When LSM in tangent to and element, only enrich the nodes that lie on the interface.
 - Level set for multiple inclusions
+- Cohesive interface. Different than sign enrichment. Needs integration over the intersection segments
 - Delete old files

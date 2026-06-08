@@ -1,5 +1,5 @@
 function [k] = xquad4_stiffness(nodal_coords, nodal_categories, ... 
-    nodal_phi, psi_handle, material_pos, material_neg, gauss_points)
+    nodal_phi, psi_func, material_pos, material_neg, gauss_points)
 % Calculate the stiffness matrix of a xfem Quad4 element
 % Input:
 % node_coords_element = 4x2 matrix. Each row corresponds to one node. Column 1 = x
@@ -8,7 +8,7 @@ function [k] = xquad4_stiffness(nodal_coords, nodal_categories, ...
 % material_pos = material properties(E,v,t) for the positive level set region, phi > 0
 % material_neg = material properties(E,v,t) for the negative level set region, phi < 0
 % nodal_level_sets = 4x1 vector with level set values [phi1; phi2; phi3; phi4]
-% psi_handle = function handle for psi(x)
+% psi_func = the enrichment function ψ(x).
 % gauss_points = matrix containing the integration points and weights. 
 %   Each row has the form: [xi,eta,w] 
 % Output:
@@ -42,10 +42,8 @@ for i = 1 : size(gauss_points,1)
     w = gauss_points(i,3);
     
     % Shape functions and deformation matrix
-    [N, dN_dx, dN_dxi, detJ] = quad4_shape_functions_derivatives(...
-        [xi eta], nodal_coords);
-    [Bstd, Benr] = xquad4_deformation_matrix(N, dN_dx, ...
-        nodal_categories, nodal_phi, psi_handle);
+    [N, dN_dx, dN_dxi, detJ] = quad4_shape_functions_derivatives([xi eta], nodal_coords);
+    [Bstd, Benr] = xquad4_deformation_matrix(N, dN_dx, nodal_categories, nodal_phi, psi_func);
 
     % Material selection based on sign of phi
     phi = N * nodal_phi;

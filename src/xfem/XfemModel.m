@@ -40,7 +40,7 @@ classdef XfemModel < handle
         supports = [];
         
         % Enrichment function
-        psi_handle;
+        psi_func; % Object of a class that implements EnrichmentInterface
 
         % Level set
         phi_nodes_all = []; % Dianysma (nx1) me tin timi tis level set (phi) gia kathe komvo
@@ -68,10 +68,15 @@ classdef XfemModel < handle
             obj.dimension = 2;
         end
 
-        function describeLevelSetAndEnrichment(obj, phi_handle, psi_handle)
-            %
+        function describeLevelSetAndEnrichment(obj, phi_handle, psi_func)
+            % Defines the level set function and the enrichment function.
+            % Input:
+            % phi_handle = function handle for the level set function φ(x).
+            % psi_func = the enrichment function ψ(x). Object of a class that implements 
+            %   EnrichmentInterface.
+            % function ψ(x).
             
-            obj.psi_handle = psi_handle;
+            obj.psi_func = psi_func;
 
             % Nodal level sets
             num_nodes = size(obj.node_coords, 1);
@@ -147,15 +152,55 @@ classdef XfemModel < handle
             
             obj.enriched_nodes = find_enriched_nodes(...
                 obj.node_coords, obj.element_nodes, obj.intersected_elements);
-            
+
             obj.elements_category = find_blending_elements(...
                 obj.intersected_elements, obj.enriched_nodes, obj.element_nodes);
+
+            %% DEBUG
+            % obj.enriched_nodes(:) = 0;
+            % obj.elements_category(:) = 0;
+            % for e = 1 : size(obj.element_nodes, 1)
+            %     x_nodes = obj.extractElementCoordinates(e);
+            %     phi_nodes = obj.extractElementLevelSets(e);
+            %     xi_c = [0; 0];
+            %     [N, dN_dx, dN_dxi, detJ] = quad4_shape_functions_derivatives(xi_c, x_nodes);
+            %     phi_c = N * phi_nodes;
+            %     obj.intersected_elements(e) = sign(phi_c);
+            % end
+            %obj.intersected_elements = [-1, -1, -1, 1, 1]';
+            %%
 
             [obj.dof_order, obj.num_dofs_all] = order_global_dofs_xfem(...
                 obj.enriched_nodes);
 
             [obj.free_dofs, obj.supported_dofs] = separate_free_supported_dofs(...
                 obj.num_dofs_all, obj.dof_order, obj.supports);
+
+            %% DEBUG
+            % num_elements = size(obj.element_nodes, 1);
+            % x_c = zeros(num_elements, 2);
+            % phi_c = zeros(num_elements, 1);
+            % grad_phi_c = zeros(num_elements, 2);
+            % psi_c = zeros(num_elements, 1);
+            % grad_psi_c = zeros(num_elements, 2);
+            % for e = 1 : num_elements
+            %     x_nodes = obj.extractElementCoordinates(e);
+            %     phi_nodes = obj.extractElementLevelSets(e);
+            % 
+            %     xi_c = [0; 0];
+            %     [N, dN_dx, dN_dxi, detJ] = quad4_shape_functions_derivatives(xi_c, x_nodes);
+            %     x_c(e,:) = N * x_nodes;
+            %     phi = N * phi_nodes;
+            %     grad_phi = dN_dx * phi_nodes;
+            %     [psi, grad_psi] = obj.psi_handle(phi, grad_phi);
+            % 
+            %     phi_c(e,1) = phi;
+            %     grad_phi_c(e,:) = grad_phi';
+            %     psi_c(e,1) = psi;
+            %     grad_psi_c(e,:) = grad_psi';
+            % end
+            % num_elements = num_elements;
+            %%
         end
 
         function [num_elements] = countElements(obj)
@@ -207,7 +252,7 @@ classdef XfemModel < handle
                 
                 nodal_phi = extractElementLevelSets(obj, element_id);
                 nodal_categories = obj.extractElementNodalCategories(element_id);
-                ke = xquad4_stiffness(nodal_coords, nodal_categories, nodal_phi, obj.psi_handle, ...
+                ke = xquad4_stiffness(nodal_coords, nodal_categories, nodal_phi, obj.psi_func, ...
                     obj.material_pos, obj.material_neg, gauss_points);    
             end
         end
@@ -244,7 +289,7 @@ classdef XfemModel < handle
                 nodal_phi = extractElementLevelSets(obj, element_id);
                 nodal_categories = obj.extractElementNodalCategories(element_id);
                 u = xquad4_displacements(natural_coords, u_elem, ...
-                    nodal_categories, nodal_phi, obj.psi_handle);
+                    nodal_categories, nodal_phi, obj.psi_func);
             end
         end
 
@@ -273,8 +318,20 @@ classdef XfemModel < handle
             else % intersected/blending element
                 nodal_phi = extractElementLevelSets(obj, element_id);
                 nodal_categories = obj.extractElementNodalCategories(element_id);
+                %% DEBUG
+                % if obj.elements_category(element_id) == 1 % Intersected element
+                %     gauss_points = integration_with_subtriangles(...
+                %             element_id, obj.intersection_mesh, 3);
+                %     for g = 1: size(gauss_points, 1)
+                %         gp = gauss_points(g,1:2)';
+                %         [e, s] = xquad4_strains_stresses(gp, u_elem, ...
+                %             nodal_coords, nodal_categories, nodal_phi, obj.psi_handle, ...
+                %             obj.material_pos, obj.material_neg);
+                %     end
+                % end
+                %%
                 [e, s] = xquad4_strains_stresses(natural_coords, u_elem, ...
-                    nodal_coords, nodal_categories, nodal_phi, obj.psi_handle, ...
+                    nodal_coords, nodal_categories, nodal_phi, obj.psi_func, ...
                     obj.material_pos, obj.material_neg);
             end
         end

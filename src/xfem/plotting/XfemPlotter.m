@@ -70,7 +70,7 @@ classdef XfemPlotter < handle
 
             plot_subtriangle_gauss_points(obj.xfem_model.node_coords, ...
                 obj.xfem_model.element_nodes, obj.xfem_model.phi_nodes_all, ...
-                obj.xfem_model.intersection_mesh, fig);
+                obj.xfem_model.intersection_mesh, fig, 'r');
         end
 
         function plotStrainsStresses(obj, U_global, smooth, scale)

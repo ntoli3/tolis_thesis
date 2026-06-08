@@ -1,17 +1,17 @@
 close all; clear; clc;
 
 % Problem properties
-Lx = 20.0;
-Ly = 4.0;
-t = 0.1;
-E_neg = 2E6;
-E_pos = 200;
+Lx = 4.0;
+Ly = 0.8;
+t = 0.02;
+E_pos = 30E6;
+E_neg = 1E3 * E_pos;
 v = 0.3;
-P = 500;
+P = 8;
 
-% Mesh (πχ 22x6, 44x12, 66x18)
-nnx = 6; % zugos arithmos  
-nny = 2; % zugos arithmos 
+% Mesh (πχ 6x2, 22x6, 44x12, 66x18) % zugos arithmos 
+nnx = 6;  
+nny = 2;
 model = XfemModel();
 [mesh, node_coords, element_nodes] = create_mesh_quad4(nnx, nny, Lx, Ly);
 model.setMesh(mesh, node_coords, element_nodes);
@@ -34,10 +34,11 @@ end
 
 % Level set
 dx = Lx / (nnx - 1);
-interface_position_x = Lx / 2;
+interface_position_x = Lx/2; %Lx/2, 8.5, 12
 phi_handle = @(x, y) x - interface_position_x;
-psi_handle = @ramp_enr; % Π.χ. @ramp_enr, @sign_enr
-model.describeLevelSetAndEnrichment(phi_handle, psi_handle);
+%phi_handle = @(x, y) interface_position_x - x;
+psi_func = RidgeEnrichment(); % Π.χ. RampEnrichment, SignEnrichment, RidgeEnrichment
+model.describeLevelSetAndEnrichment(phi_handle, psi_func);
 
 % Run analysis
 analysis = LinearStaticAnalysisXfem(model);
@@ -45,10 +46,15 @@ analysis.initialize();
 U = analysis.run();
 
 % Plot results
-%analysis.plotResults(U, 0.005);
 plotter = XfemPlotter(model);
 plotter.initialize();
-fig = figure;
-plotter.plotInitialStructure(fig);
-plotter.plotGaussPoints(fig)
-plotter.plotDeformedStructure(U, fig, 5E-3);
+
+fig1 = figure;
+plotter.plotInitialStructure(fig1);
+plotter.plotGaussPoints(fig1);
+
+fig2 = figure;
+scale = 1E3;
+plotter.plotInitialStructure(fig2);
+plotter.plotDeformedStructure(U, fig2, scale);
+plotter.plotStrainsStresses(U, 1, scale);
