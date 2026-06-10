@@ -2,3 +2,9 @@
 - Level set for multiple inclusions
 - Cohesive interface. Different than sign enrichment. Needs integration over the intersection segments
 - Delete old files
+
+
+Μελλοντικά, πλεονεκτήματα σε σχέση με FEM
+- LSM με πιο πυκνο πλεγμα απο XFEM: καλύτερη γεωμετρία χωρίς επιπλέον κόστος
+- Πολλά υλικά, πολλές διεπιφάνειες, διεπιφάνειες που τέμνονται
+- Βελτιστοποίση τοπολογίας: Η διεπιφάνεια κινείται ώστε να φτιαχτεί το βέλτιστο σύνορο. Κόβει διαφορετικά elements κάθε φορά 

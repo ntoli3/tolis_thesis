@@ -49,7 +49,7 @@ plotter = XfemPlotter(model);
 plotter.initialize();
 
 gauss_point_size = 2;
-plotter.plotGaussPoints(gauss_point_size);
+plotter.plotInitialGeometry(gauss_point_size);
 
 scale = 2E1;
 plotter.plotDisplacements(U, scale);

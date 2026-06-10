@@ -1,36 +1,38 @@
-function [intersected_elements] = find_intersected_elements_lsm( ...
-    phi_nodes_all, element_nodes)
+function [intersected_elements] = find_intersected_elements_lsm(phi_nodes_all, element_nodes)
 % elegxei an to element temnetai apo thn kampylh analoga ta phi toy kathe komboy
 %input: 
-% phi nodes all = pinakas poy exei ta phi olwn twn kombwn toy plegmatos
-% element nodes = pinakas poy periexei toys kombous toy kathe element
+% phi_nodes_all = column vector me tis level set olwn twn kombwn toy plegmatos
+% element_nodes = pinakas poy periexei toys kombous toy kathe element
 % output:
-% intersected_elements = pinakas poy periexei tin timi 0 an to element temnetai, 
-%   1 an to element vrisketai sti perioxi phi>0, 
-%   -1 an to element vrisketai sti perioxi phi<0
+% intersected_elements = column vector poy periexei gia kathe element: 0 an temnetai, 
+%   +1/-1 an den allilepidra kai vrisketai sti perioxi phi>0/phi<0,
+%   +2/-2 an efaptetai kai vrisketai sti perioxi phi>0/phi<0,
 
 % pinakas apotelesmatwn
 num_elements = size(element_nodes,1);
 intersected_elements = zeros(num_elements, 1);
 
 for e = 1 : num_elements
-% vriskw apostaseis twn kombwn tou element
-distances = zeros(1,4);
-    for j = 1 : 4 %einai oi komboi tou element
-        n = element_nodes(e,j); % einai to noumero oty kombou
-        phi = phi_nodes_all(n,1);
-        
-    distances(1,j) = phi;
-    end 
 
-% koitame an kobetai to element
-    if min(distances) * max(distances) <= 0
-        intersected_elements(e) = 0;
-    elseif min(distances) >= 0
-        intersected_elements(e) = 1;
+    % Vriskw level sets twn kombwn tou element
+    node_ids = element_nodes(e,:);
+    distances = phi_nodes_all(node_ids);
+    distances = correct_near0_level_sets(distances);
+    
+    if min(distances) * max(distances) <= 0 % To element ellilepidra
+        if min(distances) * max(distances) < 0
+            intersected_elements(e) = 0; % To element temnetai
+        elseif min(distances) >= 0
+            intersected_elements(e) = +2; % Efaptetai kai brisketai sta phi>0
+        else
+            intersected_elements(e) = -2; % Efaptetai kai brisketai sta phi<0
+        end
+    elseif min(distances) > 0
+        intersected_elements(e) = 1; % Den ellilepidra kai brisketai sta phi>0
     else
-        intersected_elements(e) = -1;
+        intersected_elements(e) = -1; % Den ellilepidra kai brisketai sta phi<0
     end
 end
+
 end
 

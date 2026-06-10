@@ -148,10 +148,10 @@ classdef XfemModel < handle
                 obj.phi_nodes_all, obj.element_nodes);
 
             obj.intersection_mesh = create_triangles_for_integration(...
-                obj.node_coords, obj.element_nodes, obj.phi_nodes_all);
+                obj.intersected_elements, obj.node_coords, obj.element_nodes, obj.phi_nodes_all);
             
             obj.enriched_nodes = find_enriched_nodes(...
-                obj.node_coords, obj.element_nodes, obj.intersected_elements);
+                obj.node_coords, obj.element_nodes, obj.phi_nodes_all, obj.intersected_elements);
 
             obj.elements_category = find_blending_elements(...
                 obj.intersected_elements, obj.enriched_nodes, obj.element_nodes);
