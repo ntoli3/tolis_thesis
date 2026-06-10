@@ -18,6 +18,7 @@ classdef XfemPlotter < handle
         function initialize(obj)
             % Initializes the data needed for plotting
             
+            fprintf('Initializing plotter ...\n');
             obj.plot_model = PlotModel(obj.xfem_model);
             obj.plot_model.initialize();
         end
@@ -30,6 +31,8 @@ classdef XfemPlotter < handle
             % scale = proportionality coefficient. 1 = same as real
             %   displacements
             
+            fprintf('Plotting displacements ...\n');
+
             % Plot initial geometry
             fig = figure;
             ax = obj.getAxes(fig);
@@ -60,6 +63,8 @@ classdef XfemPlotter < handle
             % Plot the gauss point at their coordinates in the undeformed structure
             % Input:
             % gauss_point_size = marker size. E.g. 1, 2, 3
+                
+            fprintf('Plotting initial geometry ...\n');
 
             fig = figure;
             ax = obj.getAxes(fig);
@@ -72,21 +77,18 @@ classdef XfemPlotter < handle
               'LineWidth', 1.0);
             
             % Gauss points for subtriangles
-            node_coords = obj.xfem_model.node_coords;
-            element_nodes = obj.xfem_model.element_nodes;
-            phi_nodes_all = obj.xfem_model.phi_nodes_all;
-            intersection_mesh = obj.xfem_model.intersection_mesh;
-
-            plot_subtriangle_gauss_points(node_coords, element_nodes, phi_nodes_all, ...
-                intersection_mesh, fig, 'r', gauss_point_size);
+            plot_volume_gauss_points(obj.xfem_model, fig, 'r', gauss_point_size);
             
             % Intersection segments
             if obj.xfem_model.cohesive_interface == 1
-                color = [0 0.6 0];
-                plot_intersection_segments(obj.xfem_model, fig, color, normal_head_size);
+                color_green = [0 0.6 0];
+                plot_intersection_segments(obj.xfem_model, fig, color_green, normal_head_size);
+                color_orange = [1 0.5 0];
+                plot_interface_gauss_points(obj.xfem_model, fig, color_orange, gauss_point_size);
             end
 
             % Enriched nodes
+            node_coords = obj.xfem_model.node_coords;
             enr_nodes = obj.xfem_model.enriched_nodes;
             plot_enriched_nodes(node_coords, enr_nodes, fig, 'b', enriched_node_size);
 
@@ -104,6 +106,8 @@ classdef XfemPlotter < handle
             % scale = proportionality coefficient. 1 = same as real
             %   displacements
             
+            fprintf('Plotting strains and stresses ...\n');
+
             % Strain and stress fields
             num_vertices = size(obj.plot_model.vertex_coords_cartesian, 1);
             strains = zeros(num_vertices, 3);

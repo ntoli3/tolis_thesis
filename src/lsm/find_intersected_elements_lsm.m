@@ -13,23 +13,36 @@ num_elements = size(element_nodes,1);
 intersected_elements = zeros(num_elements, 1);
 
 for e = 1 : num_elements
-
-    % Vriskw level sets twn kombwn tou element
+    % Find level sets of element nodes
     node_ids = element_nodes(e,:);
     distances = phi_nodes_all(node_ids);
+    min_phi = min(distances);
+    max_phi = max(distances);
     
-    if min(distances) * max(distances) <= 0 % To element ellilepidra
-        if min(distances) * max(distances) < 0
-            intersected_elements(e) = 0; % To element temnetai
-        elseif min(distances) >= 0
-            intersected_elements(e) = +2; % Efaptetai kai brisketai sta phi>0
-        else
-            intersected_elements(e) = -2; % Efaptetai kai brisketai sta phi<0
-        end
-    elseif min(distances) > 0
-        intersected_elements(e) = 1; % Den ellilepidra kai brisketai sta phi>0
+    if min_phi > 0
+        intersected_elements(e) = 1; % Does not interact and is in the positive region
+    elseif max_phi < 0
+        intersected_elements(e) = -1; % Does not interact and is in the negative region
+    elseif min_phi * max_phi < 0
+        intersected_elements(e) = 0; % Cut element
     else
-        intersected_elements(e) = -1; % Den ellilepidra kai brisketai sta phi<0
+        % The element touches the level set at one or more nodes
+        num_touching_nodes = sum(distances == 0);
+        if min_phi >= 0
+            if num_touching_nodes == 1
+                intersected_elements(e) = 1; % Effectively does not interact, positive region
+            else
+                intersected_elements(e) = +2; % Tangent, positive region
+            end
+        elseif max_phi <= 0
+            if num_touching_nodes == 1
+                intersected_elements(e) = -1; % Effectively does not interact, negative region
+            else
+                intersected_elements(e) = -2; % Tangent, negative region
+            end
+        else
+            error('Unpredicted case');
+        end
     end
 end
 

@@ -15,7 +15,8 @@ classdef LinearStaticAnalysisXfem < handle
 
         function initialize(obj)
             % These steps need to be done only once
-
+            
+            fprintf('Initializing model ...\n');
             obj.xfem_model.initialize();
         end
         
@@ -25,8 +26,11 @@ classdef LinearStaticAnalysisXfem < handle
             % U = vector with displacements at all dofs (free and
             % supported)
             
+            fprintf('Creating global linear system ...\n');
             Fe = build_forces_vector_xfem(obj.xfem_model);
             Kee = build_global_stiffness_matrix_xfem(obj.xfem_model);
+
+            fprintf('Solving global linear system ...\n');
             Ue = Kee \ Fe;
             
             free_dofs = obj.xfem_model.free_dofs;

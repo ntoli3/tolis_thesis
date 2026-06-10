@@ -53,6 +53,11 @@ classdef XfemModel < handle
         intersection_mesh; % Des IntersectionMesh
         intersection_segments;
         
+        % Integration rules
+        num_quad_points = [2 2];
+        num_subtriangle_points = 3;
+        num_interface_segment_points = 2;
+
         %% Freedom degrees
         num_dofs_all;
         dof_order = []
@@ -203,6 +208,7 @@ classdef XfemModel < handle
             % ke = the stiffness matrix of the target element
             
             nodal_coords = obj.extractElementCoordinates(element_id);
+            
             if obj.elements_category(element_id) == 0 % Standard element
                 if obj.intersected_elements(element_id) > 0
                     material = obj.material_pos;
@@ -212,11 +218,13 @@ classdef XfemModel < handle
                 ke = quad4_stiffness(nodal_coords, material.E, material.v, material.thickness);
             
             else 
+                num_quad_gp = obj.num_quad_points;
+                num_triangle_gp = obj.num_subtriangle_points;
                 if obj.elements_category(element_id) == 1 % Intersected element
                     gauss_points = integration_with_subtriangles(...
-                        element_id, obj.intersection_mesh, 3);
+                        element_id, obj.intersection_mesh, num_triangle_gp);
                 else % Blending element
-                    gauss_points = gauss_integration_quad4(2, 2);
+                    gauss_points = gauss_integration_quad4(num_quad_gp(1), num_quad_gp(2));
                 end
                 
                 nodal_phi = extractElementLevelSets(obj, element_id);

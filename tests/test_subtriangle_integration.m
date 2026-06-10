@@ -49,19 +49,20 @@ psi_func = RidgeEnrichment(); % Π.χ. RampEnrichment, SignEnrichment, RidgeEnri
 model.describeLevelSetAndEnrichment(phi_handle, psi_func);
 
 % Run analysis
-analysis = LinearStaticAnalysisXfem(model);
-analysis.initialize();
-U = analysis.run();
+model.initialize();
 
-% Plot results
-plotter = XfemPlotter(model);
-plotter.initialize();
-
-gauss_point_size = 6;
-enriched_node_size = 20;
-normal_head_size = 1.5;
-plotter.plotInitialGeometry(gauss_point_size, enriched_node_size, normal_head_size);
-
-scale = 1E3;
-plotter.plotDisplacements(U, scale);
-plotter.plotStrainsStresses(U, 1, scale);
+% Check areas
+num_elements = size(model.element_nodes,1);
+for e = 1 : num_elements
+    if model.elements_category(e) ~= 1
+        continue
+    end
+    gauss_points = integration_with_subtriangles(...
+        e, model.intersection_mesh, model.num_subtriangle_points);
+    sum_weights = sum(gauss_points(:,3));
+    quad4_area = 4;
+    tol = 1E-8;
+    if abs(sum_weights - quad4_area) > tol
+        error("Incorrect integration");
+    end
+end
