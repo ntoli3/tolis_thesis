@@ -1,8 +1,7 @@
-function [intersection_mesh] = create_triangles_for_integration(...
+function [intersection_segments] = create_interface_segments_for_integration(...
     intersected_elements, node_coords_all, element_nodes, phi_nodes_all)
-% vriskei ta shmeia tomhs twn element me th level set kai dhmiourgei trigwna...
-% mesw ths delaunay gia na kanoyme thn arithmitikh oloklhrwsh, douleuei...
-% prwta se fysikes syntetagmenes kai meta tis metatrepei se kartesiano
+% Vriskei ta shmeia tomhs twn element me th level set kai dhmiourgei euthigramma tmimata gia na 
+% kanoyme thn arithmitikh oloklhrwsh.
 % Input:
 % intersected_elements = pinakas poy periexei tin timi 0 an to element temnetai, 
 %   1 an to element vrisketai sti perioxi phi>0, -1 an to element vrisketai sti perioxi phi<0
@@ -10,20 +9,18 @@ function [intersection_mesh] = create_triangles_for_integration(...
 % element_nodes = pinakas pou periexei toys kombous toy kathe element
 % phi_nodes_all = pinakas poy exei tis level sets olwn twn kombwn toy plegmatos
 % Output: 
-% intersection_mesh: Des IntersectionMesh
+% intersection_segments: Des IntersectionSegments
 
 num_elements = size(element_nodes,1);
-
-triangle_points_list = cell(num_elements,1);
 point_coords_list_natural = cell(num_elements,1);
 point_coords_list_cartesian = cell(num_elements,1);
 
 for e = 1 : num_elements
     if intersected_elements(e,1) ~= 0
-        continue
+       continue
     end
 
-    % Komboi toy stoixeiou se fisikes syntetagmenes
+     % Komboi toy stoixeiou se fisikes syntetagmenes
     node_coords_natural = [-1 -1;
                             1 -1;
                             1  1;
@@ -36,27 +33,26 @@ for e = 1 : num_elements
     % Level sets stoys komboys
     phi_nodes_elem = phi_nodes_all(node_ids);
 
-    % Simeia tomhs & trigonopoihsh
-    intersection_point_coords = lsm_element_intersection(node_coords_natural, phi_nodes_elem);
-    point_coords_elem_natural = [node_coords_natural ; intersection_point_coords ] ;
-    point_coords_elem_natural = unique(point_coords_elem_natural, 'rows'); % Afairw dipla simeia 
-    triangle_points_elem = delaunay(point_coords_elem_natural);
+    % Simeia tomhs
+    point_coords_elem_natural = lsm_element_intersection(node_coords_natural, phi_nodes_elem);
+    num_points = size(point_coords_elem_natural,1);
+    if num_points ~= 2
+        error('Not implemented yet');
+    end
 
     % Metasximatizw se cartesian
-    num_points = size(point_coords_elem_natural,1);
     point_coords_elem_cartesian = zeros(num_points,2);
-    for p = 1 : num_points
+    for p = 1 : 2
         xi = point_coords_elem_natural(p,:);
         N = quad4_shape_functions(xi);
         point_coords_elem_cartesian(p,:) = N * node_coords_cartesian;
     end
 
     % Apothikevw ta dedomena toy element mesa stis synolikes listes
-    triangle_points_list{e} = triangle_points_elem;
     point_coords_list_natural{e} = point_coords_elem_natural;
     point_coords_list_cartesian{e} = point_coords_elem_cartesian;
 end
 
-intersection_mesh = IntersectionMesh( ...
-    point_coords_list_cartesian, point_coords_list_natural, triangle_points_list);
+intersection_segments = IntersectionSegments( ...
+    point_coords_list_cartesian, point_coords_list_natural);
 end

@@ -24,6 +24,7 @@ classdef XfemModel < handle
          %% Material properties. E = Young's modulus, v = Poisson's ratio
         material_pos = struct('E', 0, 'v', 0, 'thickness', 1); % material gia level set > 0
         material_neg = struct('E', 0, 'v', 0, 'thickness', 1); % material gia level set < 0
+        cohesive_interface = 0;
         
         %% Boundary conditions
         % loads: pinakas (nL x 3) opou nL = arithmos dofs pou exoun fortio. Kathe
@@ -50,6 +51,7 @@ classdef XfemModel < handle
         elements_category = []; % Vector (num_elements x 1) that classifies each finite element according to its relation with the interface
         enriched_nodes = []; % pinakas (num_nodes x 1) pou periexei: 0 an standard kombos, 1 an enriched kombos 
         intersection_mesh; % Des IntersectionMesh
+        intersection_segments;
         
         %% Freedom degrees
         num_dofs_all;
@@ -149,6 +151,11 @@ classdef XfemModel < handle
 
             obj.intersection_mesh = create_triangles_for_integration(...
                 obj.intersected_elements, obj.node_coords, obj.element_nodes, obj.phi_nodes_all);
+
+            if obj.cohesive_interface == 1
+                obj.intersection_segments = create_interface_segments_for_integration( ...
+                    obj.intersected_elements, obj.node_coords, obj.element_nodes, obj.phi_nodes_all);
+            end
             
             obj.enriched_nodes = find_enriched_nodes(obj.node_coords, obj.element_nodes, ...
                  obj.phi_nodes_all, obj.intersected_elements, obj.psi_func);

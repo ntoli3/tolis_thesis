@@ -21,13 +21,13 @@ gp = 0;
 for t = 1 : num_triangles
     triangle_points_natural = intersection_mesh.findNaturalCoordsOfTriangle(t, element_id);
     
-    % Koryfes trigwnou sto natural
+    % Triangle point coords in natural system
     A = triangle_points_natural(1,:);
     B = triangle_points_natural(2,:);
     C = triangle_points_natural(3,:);
     
     for i = 1 : num_gauss_points_per_triangle
-        % Coordinates in natural system
+        % Coordinates in auxiliary system
         r = rsw(i,1);
         s = rsw(i,2);
         w = rsw(i,3);

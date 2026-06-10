@@ -71,7 +71,7 @@ classdef XfemPlotter < handle
               'EdgeColor', 'k', ...
               'LineWidth', 1.0);
             
-            % Gauss points
+            % Gauss points for subtriangles
             node_coords = obj.xfem_model.node_coords;
             element_nodes = obj.xfem_model.element_nodes;
             phi_nodes_all = obj.xfem_model.phi_nodes_all;
@@ -80,6 +80,11 @@ classdef XfemPlotter < handle
             plot_subtriangle_gauss_points(node_coords, element_nodes, phi_nodes_all, ...
                 intersection_mesh, fig, 'r', gauss_point_size);
             
+            % Intersection segments
+            if obj.xfem_model.cohesive_interface == 1
+                plot_intersection_segments(obj.xfem_model, fig);
+            end
+
             % Enriched nodes
             enr_nodes = obj.xfem_model.enriched_nodes;
             plot_enriched_nodes(node_coords, enr_nodes, fig, 'b', enriched_node_size);

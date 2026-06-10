@@ -10,8 +10,8 @@ v = 0.3;
 P = 8;
 
 % Mesh (πχ 6x2, 11x3, 21x5 22x6, 44x12, 66x18) % zugos arithmos 
-nnx = 21;  
-nny = 5;
+nnx = 22;  
+nny = 6;
 model = XfemModel();
 [mesh, node_coords, element_nodes] = create_mesh_quad4(nnx, nny, Lx, Ly);
 model.setMesh(mesh, node_coords, element_nodes);
@@ -34,15 +34,17 @@ end
 
 % Level set
 
-%dx = Lx / (nnx - 1);
-%interface_position_x = 2.4; %Lx/2, 2.4
-%phi_handle = @(x, y) x - interface_position_x;
-%phi_handle = @(x, y) interface_position_x - x;
+% dx = Lx / (nnx - 1);
+% interface_position_x = Lx/2; %Lx/2, 2.4
+% phi_handle = @(x, y) x - interface_position_x;
+% %phi_handle = @(x, y) interface_position_x - x;
 
 x0 = [Lx/2, 0];
 theta = pi/4;
 phi_handle = @(x, y) (x - x0(1)).*sin(theta) - (y - x0(2)).*cos(theta);
 
+% Enrichment
+model.cohesive_interface = 1;
 psi_func = RidgeEnrichment(); % Π.χ. RampEnrichment, SignEnrichment, RidgeEnrichment
 model.describeLevelSetAndEnrichment(phi_handle, psi_func);
 
