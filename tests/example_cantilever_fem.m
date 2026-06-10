@@ -1,14 +1,14 @@
 close all; clear; clc;
 
-Lx = 20.0;
-Ly = 4.0;
-t = 0.1;
-E = 2E6;
+Lx = 4.0;
+Ly = 0.8;
+t = 0.02;
+E = 30E6;
 v = 0.3;
-P = 5000;
+P = 8;
 
 model = FemModel();
-[mesh, node_coords, element_nodes] = create_mesh_quad4(21, 5, Lx, Ly);
+[mesh, node_coords, element_nodes] = create_mesh_quad4(22, 6, Lx, Ly);
 model.setMesh(mesh, node_coords, element_nodes);
 model.setMaterial(E, v, t);
 
@@ -28,7 +28,7 @@ end
 analysis = LinearStaticAnalysisFem(model);
 analysis.initialize();
 U = analysis.run();
-analysis.plotResults(U, 0.5);
+analysis.plotResults(U, 1000);
 
 % Check results
 u_max = max(abs(U));

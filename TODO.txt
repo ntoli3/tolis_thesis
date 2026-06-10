@@ -1,4 +1,3 @@
-- Check that FEM and XFEM (with same material for both regions) give the same results.
 - When LSM in tangent to and element, only enrich the nodes that lie on the interface.
 - Level set for multiple inclusions
 - Cohesive interface. Different than sign enrichment. Needs integration over the intersection segments

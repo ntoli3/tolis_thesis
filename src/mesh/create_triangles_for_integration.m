@@ -56,7 +56,7 @@ for e = 1 : num_elements
     for p = 1 : num_points
         xi = point_coords_elem_natural(p,1);
         eta = point_coords_elem_natural(p,2);
-        [N] = compute_shape_functions(xi, eta);
+        [N] = quad4_shape_functions([xi eta]);
         point_coords_elem_cartesian(p,:) = N * node_coords_cartesian;
     end
 

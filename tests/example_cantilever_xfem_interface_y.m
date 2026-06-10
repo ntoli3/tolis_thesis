@@ -10,8 +10,8 @@ v = 0.3;
 P = 8;
 
 % Mesh (πχ 6x2, 22x6, 44x12, 66x18) % zugos arithmos 
-nnx = 6;  
-nny = 2;
+nnx = 22;  
+nny = 6;
 model = XfemModel();
 [mesh, node_coords, element_nodes] = create_mesh_quad4(nnx, nny, Lx, Ly);
 model.setMesh(mesh, node_coords, element_nodes);
