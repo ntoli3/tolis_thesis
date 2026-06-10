@@ -56,7 +56,7 @@ classdef XfemPlotter < handle
             obj.addSaveButton(filename, fig);
         end
         
-        function plotInitialGeometry(obj, gauss_point_size)
+        function plotInitialGeometry(obj, gauss_point_size, enriched_node_size)
             % Plot the gauss point at their coordinates in the undeformed structure
             % Input:
             % gauss_point_size = marker size. E.g. 1, 2, 3
@@ -82,7 +82,7 @@ classdef XfemPlotter < handle
             
             % Enriched nodes
             enr_nodes = obj.xfem_model.enriched_nodes;
-            plot_enriched_nodes(node_coords, enr_nodes, fig, 'b', 5*gauss_point_size);
+            plot_enriched_nodes(node_coords, enr_nodes, fig, 'b', enriched_node_size);
 
             % Save as button
             filename = 'gauss_points.fig';

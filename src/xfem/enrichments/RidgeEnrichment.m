@@ -37,5 +37,14 @@ classdef RidgeEnrichment < EnrichmentInterface
             grad_phi = dN_dx * nodal_phi;
             grad_psi = dN_dx * abs(nodal_phi) - s * grad_phi;
         end
+
+        function [flag] = mustEnrichTangentNodes(obj)
+            % Returns 1 if nodes of elements tangent to the LSM interface must
+            % be enriched, or 0 if they must not.
+            % Output:
+            % flag = 1 to enrich, 0 to not enrich
+
+            flag = 0;
+        end
     end
 end

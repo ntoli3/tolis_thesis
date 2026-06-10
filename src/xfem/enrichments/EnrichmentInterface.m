@@ -1,7 +1,6 @@
 classdef (Abstract) EnrichmentInterface < handle
 % Describes an XFEM enrichment function
     methods (Abstract)
-
         % Evaluates ψ(x) at a point x0.
         % Input:
         % phi = value of level set at the point x0.
@@ -21,5 +20,11 @@ classdef (Abstract) EnrichmentInterface < handle
         % Output:
         % grad_psi = 2x1 vector with the gradient of the enrichment function at the point x.
         [grad_psi] = evaluateDerivatives(obj, phi, N, dN_dx, nodal_phi);
+
+        % Returns 1 if nodes of elements tangent to the LSM interface must
+        % be enriched, or 0 if they must not.
+        % Output:
+        % flag = 1 to enrich, 0 to not enrich
+        [flag] = mustEnrichTangentNodes(obj);
     end
 end

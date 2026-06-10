@@ -150,8 +150,8 @@ classdef XfemModel < handle
             obj.intersection_mesh = create_triangles_for_integration(...
                 obj.intersected_elements, obj.node_coords, obj.element_nodes, obj.phi_nodes_all);
             
-            obj.enriched_nodes = find_enriched_nodes(...
-                obj.node_coords, obj.element_nodes, obj.phi_nodes_all, obj.intersected_elements);
+            obj.enriched_nodes = find_enriched_nodes(obj.node_coords, obj.element_nodes, ...
+                 obj.phi_nodes_all, obj.intersected_elements, obj.psi_func);
 
             obj.elements_category = find_blending_elements(...
                 obj.intersected_elements, obj.enriched_nodes, obj.element_nodes);
@@ -195,7 +195,7 @@ classdef XfemModel < handle
             
             nodal_coords = obj.extractElementCoordinates(element_id);
             if obj.elements_category(element_id) == 0 % Standard element
-                if obj.intersected_elements(element_id) == 1
+                if obj.intersected_elements(element_id) > 0
                     material = obj.material_pos;
                 else
                     material = obj.material_neg;

@@ -1,5 +1,5 @@
 function [enriched_nodes] = find_enriched_nodes(node_coords, element_nodes, ...
-    phi_nodes_all, intersected_elements)
+    phi_nodes_all, intersected_elements, psi_func)
 % Finds which nodes must be enriched in XFEM
 % Input:
 % node_coords = matrix (num_nodes x 2) containing the coordinates of all...
@@ -25,6 +25,9 @@ for e = 1:num_elements
     if intersected_elements(e) == 0 % Cut element. All nodes enriched
         enriched_nodes(node_ids) = 1;
     else % Tangent element. Only nodes with phi=0 are enriched
+        if psi_func.mustEnrichTangentNodes() == 0
+            continue; % Some enrichment functions must skip these nodes
+        end
         nodal_phi = phi_nodes_all(node_ids);
         nodal_phi = correct_near0_level_sets(nodal_phi);
         for n = 1:4
