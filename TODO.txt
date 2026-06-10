@@ -1,5 +1,6 @@
 - Level set for multiple inclusions
 - Cohesive interface. Different than sign enrichment. Needs integration over the intersection segments
+	- Make sure it also works for tangent segments
 - Delete old files
 
 

@@ -36,6 +36,9 @@ model.addLoad(node_top_right, 2, P);
 % phi_handle = @(x, y) x - interface_position_x;
 interface_position_y = Ly / 2;
 phi_handle = @(x, y) y - interface_position_y;
+
+% Enrichment
+model.cohesive_interface = 1;
 psi_func = SignEnrichment(); % Π.χ. RampEnrichment, SignEnrichment, RidgeEnrichment
 model.describeLevelSetAndEnrichment(phi_handle, psi_func);
 
@@ -50,7 +53,8 @@ plotter.initialize();
 
 gauss_point_size = 2;
 enriched_node_size = 10;
-plotter.plotInitialGeometry(gauss_point_size, enriched_node_size);
+normal_head_size = 1.5;
+plotter.plotInitialGeometry(gauss_point_size, enriched_node_size, normal_head_size);
 
 scale = 2E1;
 plotter.plotDisplacements(U, scale);

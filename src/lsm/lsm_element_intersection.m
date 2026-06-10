@@ -27,7 +27,7 @@ for s = 1 : 4 % Exetazw mia mia tis tesseris akmes
     elseif phi1 == 0
         xi3 = xi1;
     elseif phi2 == 0
-        xi3 = xi1;
+        xi3 = xi2;
     else
         continue; % An den yparxei tomi, synexizw stin epomeni akmi
     end
@@ -48,4 +48,10 @@ for s = 1 : 4 % Exetazw mia mia tis tesseris akmes
     end
 
 end
+
+num_intersections = size(intersection_point_coords, 1);
+if num_intersections > 2
+    error('LSM interface cannot intersect an element more than 2 times')
+end
+
 end

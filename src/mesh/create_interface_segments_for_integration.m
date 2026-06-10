@@ -39,13 +39,31 @@ for e = 1 : num_elements
     if num_points ~= 2
         error('Not implemented yet');
     end
-
+    
     % Metasximatizw se cartesian
     point_coords_elem_cartesian = zeros(num_points,2);
     for p = 1 : 2
         xi = point_coords_elem_natural(p,:);
         N = quad4_shape_functions(xi);
         point_coords_elem_cartesian(p,:) = N * node_coords_cartesian;
+    end
+
+    % Allazw fora wste to normal ne deixnei pros ta phi>0
+    xi1 = point_coords_elem_natural(1,:)';
+    xi2 = point_coords_elem_natural(2,:)';
+    xim = 0.5 * (xi1 + xi2); % midpoint in natural
+    x1 = point_coords_elem_cartesian(1,:);
+    x2 = point_coords_elem_cartesian(2,:);
+    t = x2 - x1; % tangent vector in cartesian
+    n = [t(2); -t(1)]; % candidate normal vector in cartesian
+    [N, dN_dx, dN_dxi, detJ] = quad4_shape_functions_derivatives(xim, node_coords_cartesian);
+    grad_phi = dN_dx * phi_nodes_elem; % ∇φ
+    if grad_phi' * n < 0 % n points to the region phi<0
+        % Allazw fora
+        point_coords_elem_natural = [point_coords_elem_natural(2,:); 
+                                     point_coords_elem_natural(1,:)];
+        point_coords_elem_cartesian = [point_coords_elem_cartesian(2,:); 
+                                       point_coords_elem_cartesian(1,:)];
     end
 
     % Apothikevw ta dedomena toy element mesa stis synolikes listes

@@ -17,7 +17,6 @@ for e = 1 : num_elements
     % Vriskw level sets twn kombwn tou element
     node_ids = element_nodes(e,:);
     distances = phi_nodes_all(node_ids);
-    distances = correct_near0_level_sets(distances);
     
     if min(distances) * max(distances) <= 0 % To element ellilepidra
         if min(distances) * max(distances) < 0

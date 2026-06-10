@@ -44,7 +44,7 @@ classdef XfemModel < handle
         psi_func; % Object of a class that implements EnrichmentInterface
 
         % Level set
-        phi_nodes_all = []; % Dianysma (nx1) me tin timi tis level set (phi) gia kathe komvo
+        phi_nodes_all = []; % Vector (nx1) with the level set (phi) at each node
         
         % Mesh / level set intersections
         intersected_elements = []; % Gia kathe element periexei tin timi 0 an to element temnetai, 1 an to element vrisketai sti perioxi phi>0, -1 an to element vrisketai sti perioxi phi<0
@@ -81,12 +81,14 @@ classdef XfemModel < handle
             obj.psi_func = psi_func;
 
             % Nodal level sets
-            num_nodes = size(obj.node_coords, 1);
-            obj.phi_nodes_all = zeros(num_nodes, 1);
-            for n = 1 : num_nodes
-                coords = obj.node_coords(n, :);
-                obj.phi_nodes_all(n) = phi_handle(coords(1), coords(2));
-            end
+            obj.phi_nodes_all = calc_all_nodal_level_sets(...
+                obj.node_coords, obj.element_nodes, phi_handle);
+            % num_nodes = size(obj.node_coords, 1);
+            % obj.phi_nodes_all = zeros(num_nodes, 1);
+            % for n = 1 : num_nodes
+            %     coords = obj.node_coords(n, :);
+            %     obj.phi_nodes_all(n) = phi_handle(coords(1), coords(2));
+            % end
         end
 
         function setMesh(obj, mesh, node_coords, element_nodes)

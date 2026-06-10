@@ -36,12 +36,24 @@ for e = 1 : num_elements
     % Level sets stoys komboys
     phi_nodes_elem = phi_nodes_all(node_ids);
 
-    % Simeia tomhs & trigonopoihsh
+    % Simeia tomhs
     intersection_point_coords = lsm_element_intersection(node_coords_natural, phi_nodes_elem);
     point_coords_elem_natural = [node_coords_natural ; intersection_point_coords ] ;
-    point_coords_elem_natural = unique(point_coords_elem_natural, 'rows'); % Afairw dipla simeia 
-    triangle_points_elem = delaunay(point_coords_elem_natural);
-
+    point_coords_elem_natural = unique(point_coords_elem_natural, 'rows'); % Afairw dipla simeia
+    
+    % Dimiourgia trigwnwn
+    if size(point_coords_elem_natural, 1) > 4 % sunithismeni periptwsi
+        triangle_points_elem = delaunay(point_coords_elem_natural);
+    else % spania periptwsi: i diepifaneia perna apo mia diagwnio
+        point_coords_elem_natural = node_coords_natural;
+        xi1 = intersection_point_coords(1, :);
+        if isequal(xi1, [-1,-1]) || isequal(xi1, [1,1])
+            triangle_points_elem = [1 3 4; 1 2 3];
+        else
+            triangle_points_elem = [1 2 4; 2 3 4];
+        end
+    end
+    
     % Metasximatizw se cartesian
     num_points = size(point_coords_elem_natural,1);
     point_coords_elem_cartesian = zeros(num_points,2);

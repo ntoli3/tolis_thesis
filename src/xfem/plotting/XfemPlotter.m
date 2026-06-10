@@ -56,7 +56,7 @@ classdef XfemPlotter < handle
             obj.addSaveButton(filename, fig);
         end
         
-        function plotInitialGeometry(obj, gauss_point_size, enriched_node_size)
+        function plotInitialGeometry(obj, gauss_point_size, enriched_node_size, normal_head_size)
             % Plot the gauss point at their coordinates in the undeformed structure
             % Input:
             % gauss_point_size = marker size. E.g. 1, 2, 3
@@ -82,7 +82,8 @@ classdef XfemPlotter < handle
             
             % Intersection segments
             if obj.xfem_model.cohesive_interface == 1
-                plot_intersection_segments(obj.xfem_model, fig);
+                color = [0 0.6 0];
+                plot_intersection_segments(obj.xfem_model, fig, color, normal_head_size);
             end
 
             % Enriched nodes

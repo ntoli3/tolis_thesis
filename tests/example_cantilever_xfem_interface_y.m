@@ -10,8 +10,8 @@ v = 0.3;
 P = 8;
 
 % Mesh (πχ 6x2, 11x3, 21x5 22x6, 44x12, 66x18) % zugos arithmos 
-nnx = 22;  
-nny = 6;
+nnx = 21;  
+nny = 5;
 model = XfemModel();
 [mesh, node_coords, element_nodes] = create_mesh_quad4(nnx, nny, Lx, Ly);
 model.setMesh(mesh, node_coords, element_nodes);
@@ -59,7 +59,8 @@ plotter.initialize();
 
 gauss_point_size = 6;
 enriched_node_size = 20;
-plotter.plotInitialGeometry(gauss_point_size, enriched_node_size);
+normal_head_size = 1.5;
+plotter.plotInitialGeometry(gauss_point_size, enriched_node_size, normal_head_size);
 
 scale = 1E3;
 plotter.plotDisplacements(U, scale);
