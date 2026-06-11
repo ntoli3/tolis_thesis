@@ -2,16 +2,18 @@ close all; clear; clc;
 
 % Problem properties
 Lx = 4.0;
-Ly = 0.8;
+Ly = 2.0;
 t = 0.02;
+P = 8;
 E_pos = 30E6;
 E_neg = 1E3 * E_pos;
 v = 0.3;
-P = 8;
+kn = 1E6;
+kt = 1E6;
 
-% Mesh (πχ 6x2, 11x3, 21x5 22x6, 44x12, 66x18) % zugos arithmos 
-nnx = 22;  
-nny = 6;
+% Mesh (πχ 5x3, 9x5, 21x11, 41x21, 61x31) % zugos arithmos 
+nnx = 41;  
+nny = 21;
 model = XfemModel();
 [mesh, node_coords, element_nodes] = create_mesh_quad4(nnx, nny, Lx, Ly);
 model.setMesh(mesh, node_coords, element_nodes);
@@ -29,25 +31,35 @@ end
 [nodes_right] = find_nodes_with_x(Lx, model);
 for n = 1:length(nodes_right)
     node_id = nodes_right(n);
-    model.addLoad(node_id, 2, - P / length(nodes_right));
+    model.addLoad(node_id, 1, P / length(nodes_right));
 end
 
-% Level set
+% Inclusion geometries
+seed = 11; % find a nice shape and then do not change it
+num_circles = 10;
+max_radius = Ly / 5;
+min_radius = max_radius / 2;
+rng(seed);
+Xc = Lx * rand(num_circles,1); % Random centers
+Yc = Ly * rand(num_circles,1);
+Rc = min_radius + (max_radius - min_radius) * rand(num_circles,1); % Random radii
+circles = [Xc Yc Rc]; % Store circles
 lsm = LsmInterface();
-% dx = Lx / (nnx - 1);
-% interface_position_x = Lx/2; %Lx/2, 2.4
-% phi_handle = @(x, y) x - interface_position_x;
-% %phi_handle = @(x, y) interface_position_x - x;
-
-x0 = [Lx/2, 0];
-theta = pi/2;
-phi_handle = @(x, y) (x - x0(1)).*sin(theta) - (y - x0(2)).*cos(theta);
-
-lsm.addLevelSet(phi_handle);
+for i = 1 : num_circles
+    xc = circles(i,1);
+    yc = circles(i,2);
+    r = circles(i,3);
+    phi_handle = @(x, y) sqrt((x - xc)^2 + (y - yc)^2) - r;
+    lsm.addLevelSet(phi_handle);
+end
+%lsm.addLevelSet(@(x, y) sqrt((x - Lx/2)^2 + (y - Ly/2)^2) - Ly/4)
+% lsm.addLevelSet(@(x, y) sqrt((x - Lx/3)^2 + (y - Ly/2)^2) - Ly/5)
+% lsm.addLevelSet(@(x, y) sqrt((x - Lx/2)^2 + (y - Ly/2)^2) - Ly/5)
 
 % Enrichment
-psi_func = RidgeEnrichment(); % Π.χ. RampEnrichment, SignEnrichment, RidgeEnrichment
+psi_func = SignEnrichment(); % Π.χ. RampEnrichment, SignEnrichment, RidgeEnrichment
 model.describeLevelSetAndEnrichment(lsm, psi_func);
+model.setCohesiveInterface(kn, kt);
 
 % Run analysis
 analysis = LinearStaticAnalysisXfem(model);

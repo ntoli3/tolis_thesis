@@ -1,4 +1,4 @@
-classdef RampEnrichment < EnrichmentInterface
+classdef RampEnrichment < AbstractEnrichment
     % XFEM enrichment function: ψ(x) = |φ(x)|, ∇ψ = sign(φ) * ∇φ
 
     methods

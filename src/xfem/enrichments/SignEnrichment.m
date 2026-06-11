@@ -1,4 +1,4 @@
-classdef SignEnrichment < EnrichmentInterface
+classdef SignEnrichment < AbstractEnrichment
     % XFEM enrichment function: ψ(x) = sign(φ(x)), ∇ψ = 0
 
     methods

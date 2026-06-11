@@ -35,10 +35,12 @@ for n = 1:length(nodes_right)
 end
 
 % Cohesive interface
+lsm = LsmInterface();
 interface_position_x = Lx / 2; %Lx/2, 2.4
 phi_handle = @(x, y) x - interface_position_x;
+lsm.addLevelSet(phi_handle);
 psi_func = SignEnrichment(); % Π.χ. RampEnrichment, SignEnrichment, RidgeEnrichment
-model.describeLevelSetAndEnrichment(phi_handle, psi_func);
+model.describeLevelSetAndEnrichment(lsm, psi_func);
 model.setCohesiveInterface(kn, kt);
 
 % Run analysis

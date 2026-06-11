@@ -1,4 +1,4 @@
-classdef (Abstract) EnrichmentInterface < handle
+classdef (Abstract) AbstractEnrichment < handle
 % Describes an XFEM enrichment function
     methods (Abstract)
         % Evaluates ψ(x) at a point x0.

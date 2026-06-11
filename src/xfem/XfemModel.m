@@ -76,25 +76,20 @@ classdef XfemModel < handle
             obj.dimension = 2;
         end
 
-        function describeLevelSetAndEnrichment(obj, phi_handle, psi_func)
+        function describeLevelSetAndEnrichment(obj, lsm, psi_func)
             % Defines the level set function and the enrichment function.
             % Input:
-            % phi_handle = function handle for the level set function φ(x).
+            % lsm = the level set interface φ(x). Object of LsmInterface.
             % psi_func = the enrichment function ψ(x). Object of a class that implements 
-            %   EnrichmentInterface.
+            %   AbstractEnrichment.
             % function ψ(x).
             
             obj.psi_func = psi_func;
 
             % Nodal level sets
+            phi_nodes_raw = lsm.calcFinalNodalLevelSets(obj.node_coords);
             obj.phi_nodes_all = calc_all_nodal_level_sets(...
-                obj.node_coords, obj.element_nodes, phi_handle);
-            % num_nodes = size(obj.node_coords, 1);
-            % obj.phi_nodes_all = zeros(num_nodes, 1);
-            % for n = 1 : num_nodes
-            %     coords = obj.node_coords(n, :);
-            %     obj.phi_nodes_all(n) = phi_handle(coords(1), coords(2));
-            % end
+                obj.node_coords, obj.element_nodes, phi_nodes_raw);
         end
 
         function setCohesiveInterface(obj, kn, kt)

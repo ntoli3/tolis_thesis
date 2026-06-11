@@ -1,4 +1,4 @@
-classdef RidgeEnrichment < EnrichmentInterface
+classdef RidgeEnrichment < AbstractEnrichment
     % XFEM enrichment function: ψ(x) = Σ(Ni(x)*|φi|) − |Σ(Ni(x)*φi)|,
 
     methods

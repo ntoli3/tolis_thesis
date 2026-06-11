@@ -1,11 +1,11 @@
-function [phi_nodes_all] = calc_all_nodal_level_sets(node_coords, element_nodes, phi_handle)
+function [phi_nodes_all] = calc_all_nodal_level_sets(node_coords, element_nodes, phi_nodes_all)
 % Calculate the level sets at all nodes of the mesh
 % Input:
 % node_coords = matrix (num_nodes x num_dimensions). Each row corresponds to one node and contains 
 %   its coordinates in the global cartesian system.
 % element_nodes = matrix (num_elements x num_nodes_per_element]). Each row corresponds to one 
 %   finite element and contains the IDs of the nodes of that element.
-% phi_handle = function handle for the level set function φ(x).
+% phi_nodes_all = vector (nx1) with the level set (phi) at each node.
 % Output:
 % phi_nodes_all = vector (nx1) with the level set (phi) at each node
 
@@ -26,10 +26,11 @@ threshold = tol * element_size;
 
 % Calculate level sets at node coords
 num_nodes = size(node_coords, 1);
-phi_nodes_all = zeros(num_nodes, 1);
+%phi_nodes_all = zeros(num_nodes, 1);
 for n = 1 : num_nodes
-    coords = node_coords(n, :);
-    phi = phi_handle(coords(1), coords(2));
+    % coords = node_coords(n, :);
+    % phi = phi_handle(coords(1), coords(2));
+    phi = phi_nodes_all(n);
     if abs(phi) < threshold
         phi = 0;
     end
