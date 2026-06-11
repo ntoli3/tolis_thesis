@@ -25,11 +25,13 @@ for e = 1:num_elements
     if intersected_elements(e) == 0 % Cut element. All nodes enriched
         enriched_nodes(node_ids) = 1;
     else % Tangent element. Only nodes with phi=0 are enriched
+        if isa(psi_func, 'SignEnrichment')
+            error('Tangent interface not allowed with SignEnrichment.');
+        end
         if psi_func.mustEnrichTangentNodes() == 0
             continue; % Some enrichment functions must skip these nodes
         end
         nodal_phi = phi_nodes_all(node_ids);
-        nodal_phi = correct_near0_level_sets(nodal_phi);
         for n = 1:4
             if nodal_phi(n) == 0
                 enriched_nodes(node_ids(n)) = 1; % Enrich this node

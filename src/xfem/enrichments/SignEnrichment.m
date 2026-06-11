@@ -45,7 +45,7 @@ classdef SignEnrichment < EnrichmentInterface
             % Output:
             % flag = 1 to enrich, 0 to not enrich
 
-            flag = 0;
+            flag = 1;
         end
     end
 end

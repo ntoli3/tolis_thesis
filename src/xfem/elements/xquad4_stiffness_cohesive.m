@@ -25,7 +25,16 @@ for i = 1 : size(gauss_points,1)
     
     % Shape functions and Jacobians
     [N, dN_dx, dN_dxi, J, detJ] = quad4_shape_functions_derivatives(xi, nodal_coords);
-    Nm = quad4_shape_function_matrix(N);
+    Nm = zeros(2, num_enriched_dofs);
+    col = 1;
+    for n = 1 : 4
+        if nodal_categories(n) == 1
+            Nm(1, col) = N(n);
+            Nm(2, col+1) = N(n);
+            col = col + 2;
+        end
+    end
+   % Nm = quad4_shape_function_matrix(N); % does not work for tangent elements
 
     % Constitutive matrix of the cohesive interface
     tc = J * tn; % Tangent vector in cartesian system
