@@ -1,4 +1,4 @@
- close all; clear; clc;
+close all; clear; clc;
 
 % Problem properties
 Lx = 4.0;
@@ -18,7 +18,7 @@ model.setMesh(mesh, node_coords, element_nodes);
 model.setMaterials(E_pos, v, E_neg, v, t);
 
 % Supports
-[nodes_left] = find_nodes_with_x(0.0, model);
+ [nodes_left] = find_nodes_with_x(0.0, model);
 for n = 1:length(nodes_left)
     node_id = nodes_left(n);
     model.addSupport(node_id, 1);

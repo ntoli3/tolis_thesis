@@ -228,7 +228,7 @@ classdef XfemModel < handle
 
             nodes = obj.element_nodes(element_id, :);
             nodal_phi = obj.phi_nodes_all(nodes);
-            N = compute_shape_functions(natural_coords(1), natural_coords(2));
+            N = quad4_shape_functions(natural_coords);           
             phi = N * nodal_phi;
         end
 
