@@ -24,6 +24,8 @@ classdef XfemModel < handle
          %% Material properties. E = Young's modulus, v = Poisson's ratio
         material_pos = struct('E', 0, 'v', 0, 'thickness', 1); % material gia level set > 0
         material_neg = struct('E', 0, 'v', 0, 'thickness', 1); % material gia level set < 0
+        cohesive_interface = 0;
+        Dcoh = []; % Constitutive tensor of the cohesive interface: 2x2 matrix
         
         %% Boundary conditions
         % loads: pinakas (nL x 3) opou nL = arithmos dofs pou exoun fortio. Kathe
@@ -43,14 +45,20 @@ classdef XfemModel < handle
         psi_func; % Object of a class that implements EnrichmentInterface
 
         % Level set
-        phi_nodes_all = []; % Dianysma (nx1) me tin timi tis level set (phi) gia kathe komvo
+        phi_nodes_all = []; % Vector (nx1) with the level set (phi) at each node
         
         % Mesh / level set intersections
         intersected_elements = []; % Gia kathe element periexei tin timi 0 an to element temnetai, 1 an to element vrisketai sti perioxi phi>0, -1 an to element vrisketai sti perioxi phi<0
         elements_category = []; % Vector (num_elements x 1) that classifies each finite element according to its relation with the interface
         enriched_nodes = []; % pinakas (num_nodes x 1) pou periexei: 0 an standard kombos, 1 an enriched kombos 
         intersection_mesh; % Des IntersectionMesh
+        intersection_segments;
         
+        % Integration rules
+        num_quad_points = [2 2];
+        num_subtriangle_points = 3;
+        num_interface_segment_points = 2;
+
         %% Freedom degrees
         num_dofs_all;
         dof_order = []
@@ -68,23 +76,30 @@ classdef XfemModel < handle
             obj.dimension = 2;
         end
 
-        function describeLevelSetAndEnrichment(obj, phi_handle, psi_func)
+        function describeLevelSetAndEnrichment(obj, lsm, psi_func)
             % Defines the level set function and the enrichment function.
             % Input:
-            % phi_handle = function handle for the level set function φ(x).
+            % lsm = the level set interface φ(x). Object of LsmInterface.
             % psi_func = the enrichment function ψ(x). Object of a class that implements 
-            %   EnrichmentInterface.
+            %   AbstractEnrichment.
             % function ψ(x).
             
             obj.psi_func = psi_func;
 
             % Nodal level sets
-            num_nodes = size(obj.node_coords, 1);
-            obj.phi_nodes_all = zeros(num_nodes, 1);
-            for n = 1 : num_nodes
-                coords = obj.node_coords(n, :);
-                obj.phi_nodes_all(n) = phi_handle(coords(1), coords(2));
-            end
+            phi_nodes_raw = lsm.calcFinalNodalLevelSets(obj.node_coords);
+            obj.phi_nodes_all = calc_all_nodal_level_sets(...
+                obj.node_coords, obj.element_nodes, phi_nodes_raw);
+        end
+
+        function setCohesiveInterface(obj, kn, kt)
+            % Mark the interface as cohesive. Must be used with StepEnrichment.
+            % Input:
+            % kn = stiffness of the interface material for the opening mode
+            % kt = stiffness of the interface material for the sliding mode
+            
+            obj.cohesive_interface = 1;
+            obj.Dcoh = [kn 0; 0 kt]; 
         end
 
         function setMesh(obj, mesh, node_coords, element_nodes)
@@ -148,10 +163,15 @@ classdef XfemModel < handle
                 obj.phi_nodes_all, obj.element_nodes);
 
             obj.intersection_mesh = create_triangles_for_integration(...
-                obj.node_coords, obj.element_nodes, obj.phi_nodes_all);
+                obj.intersected_elements, obj.node_coords, obj.element_nodes, obj.phi_nodes_all);
+
+            if obj.cohesive_interface == 1
+                obj.intersection_segments = create_interface_segments_for_integration( ...
+                    obj.intersected_elements, obj.node_coords, obj.element_nodes, obj.phi_nodes_all);
+            end
             
-            obj.enriched_nodes = find_enriched_nodes(...
-                obj.node_coords, obj.element_nodes, obj.intersected_elements);
+            obj.enriched_nodes = find_enriched_nodes(obj.node_coords, obj.element_nodes, ...
+                 obj.phi_nodes_all, obj.intersected_elements, obj.psi_func);
 
             obj.elements_category = find_blending_elements(...
                 obj.intersected_elements, obj.enriched_nodes, obj.element_nodes);
@@ -193,28 +213,7 @@ classdef XfemModel < handle
             % Output:
             % ke = the stiffness matrix of the target element
             
-            nodal_coords = obj.extractElementCoordinates(element_id);
-            if obj.elements_category(element_id) == 0 % Standard element
-                if obj.intersected_elements(element_id) == 1
-                    material = obj.material_pos;
-                else
-                    material = obj.material_neg;
-                end
-                ke = quad4_stiffness(nodal_coords, material.E, material.v, material.thickness);
-            
-            else 
-                if obj.elements_category(element_id) == 1 % Intersected element
-                    gauss_points = integration_with_subtriangles(...
-                        element_id, obj.intersection_mesh, 3);
-                else % Blending element
-                    gauss_points = gauss_integration_quad4(2, 2);
-                end
-                
-                nodal_phi = extractElementLevelSets(obj, element_id);
-                nodal_categories = obj.extractElementNodalCategories(element_id);
-                ke = xquad4_stiffness(nodal_coords, nodal_categories, nodal_phi, obj.psi_func, ...
-                    obj.material_pos, obj.material_neg, gauss_points);    
-            end
+            ke = build_xfem_element_stiffness(obj, element_id);
         end
 
         function [phi] = interpolateLevelSets(obj, element_id, natural_coords)
@@ -228,7 +227,7 @@ classdef XfemModel < handle
 
             nodes = obj.element_nodes(element_id, :);
             nodal_phi = obj.phi_nodes_all(nodes);
-            N = quad4_shape_functions(natural_coords);           
+            N = quad4_shape_functions(natural_coords);
             phi = N * nodal_phi;
         end
 
@@ -283,9 +282,7 @@ classdef XfemModel < handle
                     obj.material_pos, obj.material_neg);
             end
         end
-    end
 
-    methods (Access = private)
         function [elem_coords] = extractElementCoordinates(obj, element_id)
             % Extracts the coordinates of nodes of a specific element.
             % Input

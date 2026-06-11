@@ -32,12 +32,16 @@ node_top_right = find_single_node_with_xy(Lx, Ly, model);
 model.addLoad(node_top_right, 2, P);
 
 % Level set
+lsm = LsmInterface();
 % interface_position_x = Lx / 2;
 % phi_handle = @(x, y) x - interface_position_x;
 interface_position_y = Ly / 2;
 phi_handle = @(x, y) y - interface_position_y;
+lsm.addLevelSet(phi_handle);
+
+% Enrichment
 psi_func = SignEnrichment(); % Π.χ. RampEnrichment, SignEnrichment, RidgeEnrichment
-model.describeLevelSetAndEnrichment(phi_handle, psi_func);
+model.describeLevelSetAndEnrichment(lsm, psi_func);
 
 % Run analysis
 analysis = LinearStaticAnalysisXfem(model);
@@ -49,7 +53,9 @@ plotter = XfemPlotter(model);
 plotter.initialize();
 
 gauss_point_size = 2;
-plotter.plotGaussPoints(gauss_point_size);
+enriched_node_size = 10;
+normal_head_size = 1.5;
+plotter.plotInitialGeometry(gauss_point_size, enriched_node_size, normal_head_size);
 
 scale = 2E1;
 plotter.plotDisplacements(U, scale);

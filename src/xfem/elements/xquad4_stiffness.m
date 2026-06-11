@@ -1,6 +1,6 @@
 function [k] = xquad4_stiffness(nodal_coords, nodal_categories, ... 
     nodal_phi, psi_func, material_pos, material_neg, gauss_points)
-% Calculate the stiffness matrix of a xfem Quad4 element
+% Calculate the stiffness matrix of a XFEM Quad4 element
 % Input:
 % node_coords_element = 4x2 matrix. Each row corresponds to one node. Column 1 = x
 %   coordinate of the node. Column 2 = y coordinate.
@@ -42,7 +42,7 @@ for i = 1 : size(gauss_points,1)
     w = gauss_points(i,3);
     
     % Shape functions and deformation matrix
-    [N, dN_dx, dN_dxi, detJ] = quad4_shape_functions_derivatives([xi eta], nodal_coords);
+    [N, dN_dx, dN_dxi, J, detJ] = quad4_shape_functions_derivatives([xi eta], nodal_coords);
     [Bstd, Benr] = xquad4_deformation_matrix(N, dN_dx, nodal_categories, nodal_phi, psi_func);
 
     % Material selection based on sign of phi

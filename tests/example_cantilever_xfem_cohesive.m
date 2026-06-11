@@ -1,17 +1,19 @@
 close all; clear; clc;
 
 % Problem properties
-Lx = 20.0;
-Ly = 4.0;
-t = 0.1;
-E_neg = 2E6;
-E_pos = 200;
+Lx = 4.0;
+Ly = 0.8;
+t = 0.02;
+P = 8;
+E_pos = 30E6;
+E_neg = 1E3 * E_pos;
 v = 0.3;
-P = 500;
+kn = 1E12;
+kt = 1E6;
 
-% Mesh
-nnx = 22; % zugos arithmos
-nny = 6; % zugos arithmos
+% Mesh (πχ 6x2, 11x3, 21x5 22x6, 44x12, 66x18) % zugos arithmos 
+nnx = 6;  
+nny = 2;
 model = XfemModel();
 [mesh, node_coords, element_nodes] = create_mesh_quad4(nnx, nny, Lx, Ly);
 model.setMesh(mesh, node_coords, element_nodes);
@@ -32,15 +34,29 @@ for n = 1:length(nodes_right)
     model.addLoad(node_id, 2, - P / length(nodes_right));
 end
 
-% Level set
-dx = Lx / (nnx - 1);
-interface_position_y = Ly / 2;
-phi_handle = @(x, y) interface_position_y - y;
-psi_handle = @ramp_enr;
-model.describeLevelSetAndEnrichment(phi_handle, psi_handle);
+% Cohesive interface
+lsm = LsmInterface();
+interface_position_x = Lx / 2; %Lx/2, 2.4
+phi_handle = @(x, y) x - interface_position_x;
+lsm.addLevelSet(phi_handle);
+psi_func = SignEnrichment(); % Π.χ. RampEnrichment, SignEnrichment, RidgeEnrichment
+model.describeLevelSetAndEnrichment(lsm, psi_func);
+model.setCohesiveInterface(kn, kt);
 
 % Run analysis
 analysis = LinearStaticAnalysisXfem(model);
 analysis.initialize();
 U = analysis.run();
-analysis.plotResults(U, 0.1);
+
+% Plot results
+plotter = XfemPlotter(model);
+plotter.initialize();
+
+gauss_point_size = 6;
+enriched_node_size = 20;
+normal_head_size = 1.5;
+plotter.plotInitialGeometry(gauss_point_size, enriched_node_size, normal_head_size);
+
+scale = 1E3;
+plotter.plotDisplacements(U, scale);
+plotter.plotStrainsStresses(U, 1, scale);

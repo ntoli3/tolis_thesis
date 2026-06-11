@@ -23,7 +23,6 @@ classdef IntersectionMesh < handle
         end
 
         function num_triangles = countTrianglesOfElement(obj, element_id)
-            % METHOD1
             % Counts how many subtriangles belong to a specific element.
             % INPUT:
             % element_id: ID of the element whose subtriangles will be counted.
@@ -46,8 +45,7 @@ classdef IntersectionMesh < handle
             coords = zeros(3, 2);
             for p = 1:3
                 point_index = points_of_triangle(p);
-                coords(p, 1) = point_coords_of_element(point_index, 1);
-                coords(p, 2) = point_coords_of_element(point_index, 2);
+                coords(p, :) = point_coords_of_element(point_index, :);
             end
         end
 
