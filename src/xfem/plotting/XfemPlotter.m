@@ -4,6 +4,8 @@ classdef XfemPlotter < handle
     properties
         xfem_model; % The original model used in XFEM
         plot_model; % The model of faces and vertices used for plotting
+        smoothing_type; % 0 = no smoothing, 1 = averaging, 2 = weighted averaging, based on areas
+        extrapolate_from_gauss_points = 0; % 1 to extrapolate strains/stresses from Gauss points
     end
 
     methods
@@ -100,14 +102,11 @@ classdef XfemPlotter < handle
             obj.addSaveButton(filename, fig);
         end
 
-        function plotStrainsStresses(obj, U_global, smooth, scale)
+        function plotStrainsStresses(obj, U_global, scale)
             % Plot the strains (εx, εy, γxy) and stresses (σx, σy, τxy).
             % Input:
             % U_global = global displacements
-            % smooth = 1 to average values at coincident vertices or 0 to
-            %   plot the raw results from XFEM
-            % scale = proportionality coefficient. 1 = same as real
-            %   displacements
+            % scale = proportionality coefficient. 1 = same as real displacements
             
             fprintf('Plotting strains and stresses ...\n');
 
@@ -126,7 +125,7 @@ classdef XfemPlotter < handle
             end
             
             % Smoothing
-            if smooth == 1
+            if obj.smoothing_type ~= 0
                 strains = obj.smoothField(strains);
                 stresses = obj.smoothField(stresses);
                 vonMises = obj.smoothField(vonMises);
@@ -238,15 +237,31 @@ classdef XfemPlotter < handle
             coincident_vertices = obj.plot_model.coincident_vertices;
             num_vertices = size(field, 1);
             smooth_field = zeros(num_vertices, size(field, 2));
-            for v1 = 1:num_vertices
-                group = coincident_vertices{v1};
-                sum = zeros(1, size(field, 2));
-                for i = 1 : length(group)
-                    v2 = group(i);
-                    sum = sum + field(v2,:);
+            if obj.smoothing_type == 1
+                for v1 = 1:num_vertices
+                    group = coincident_vertices{v1};
+                    sum = zeros(1, size(field, 2));
+                    for i = 1 : length(group)
+                        v2 = group(i);
+                        sum = sum + field(v2,:);
+                    end
+                    smooth_field(v1,:) = sum / length(group);
                 end
-                smooth_field(v1,:) = sum / length(group);
+            else
+                weights = obj.plot_model.vertex_smoothing_weights;
+                for v1 = 1:num_vertices
+                    group = coincident_vertices{v1};
+                    sum = zeros(1, size(field, 2));
+                    for i = 1 : length(group)
+                        v2 = group(i);
+                        w = weights(v2);
+                        sum = sum + w * field(v2,:);
+                    end
+                    smooth_field(v1,:) = sum;
+                end
             end
+
+            
         end
 
     end

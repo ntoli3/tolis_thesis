@@ -56,6 +56,8 @@ U = analysis.run();
 
 % Plot results
 plotter = XfemPlotter(model);
+plotter.extrapolate_from_gauss_points = 0;
+plotter.smoothing_type = 2; % 0 = no smoothing, 1 = averaging, 2 = weighted averaging
 plotter.initialize();
 
 gauss_point_size = 6;
@@ -65,4 +67,4 @@ plotter.plotInitialGeometry(gauss_point_size, enriched_node_size, normal_head_si
 
 scale = 1E3;
 plotter.plotDisplacements(U, scale);
-plotter.plotStrainsStresses(U, 1, scale);
+plotter.plotStrainsStresses(U, scale);
