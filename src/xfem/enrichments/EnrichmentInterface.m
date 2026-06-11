@@ -20,6 +20,10 @@ classdef (Abstract) EnrichmentInterface < handle
         % Output:
         % grad_psi = 2x1 vector with the gradient of the enrichment function at the point x.
         [grad_psi] = evaluateDerivatives(obj, phi, N, dN_dx, nodal_phi);
+        
+        % Evaluates the jump: δψ = ψ(x+) - ψ(x-), where x+, x- have the
+        % same coords but lie on different sides of the interface
+        [psi_jump] = evaluateJump(obj);
 
         % Returns 1 if nodes of elements tangent to the LSM interface must
         % be enriched, or 0 if they must not.

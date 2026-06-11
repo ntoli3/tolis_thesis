@@ -22,8 +22,10 @@ for e = 1 : num_elements
 
         plot([p1(1) p2(1)], [p1(2) p2(2)], 'LineStyle', '-',  'Color', color, 'LineWidth', 2);
 
-        % Normal
-        n = intersection_segments.findNormalOfSegment(s,e);
+        % Normal vector
+        t = (p2 - p1); % tangent vector
+        n = [t(2) -t(1)];
+        n = n / norm(n);
         pm = 0.5*(p1+p2);
         scale = normal_scale * norm(p2-p1);
         n = n * scale;

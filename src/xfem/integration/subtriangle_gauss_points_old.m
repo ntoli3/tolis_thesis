@@ -1,4 +1,4 @@
-function [xew] = subtriangle_gauss_points(num_gauss_points, triangle_points_natural)
+function [xew] = subtriangle_gauss_points_old(num_gauss_points, triangle_points_natural)
 % ypologizei ta shmeia oloklhrwshs gauss se ena trigwno sto fisiko systhma
 % input: 
 % num_gauss_points = plhthos shmeiwn gauss

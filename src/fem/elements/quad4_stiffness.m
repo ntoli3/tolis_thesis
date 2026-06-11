@@ -23,7 +23,7 @@ for i = 1: size(gauss_points, 1)
     w = gauss_points(i, 3);
     
     % Shape functions and deformation matrix
-    [N, dN_dx, dN_dxi, detJ] = quad4_shape_functions_derivatives(...
+    [N, dN_dx, dN_dxi, J, detJ] = quad4_shape_functions_derivatives(...
         [xi eta], nodal_coords);
     B = quad4_deformation_matrix(dN_dx); 
     

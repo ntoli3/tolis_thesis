@@ -1,4 +1,4 @@
-function [N, dN_dx, dN_dxi, detJ] = quad4_shape_functions_derivatives(...
+function [N, dN_dx, dN_dxi, J, detJ] = quad4_shape_functions_derivatives(...
     natural_coords, nodal_coords)
 % Calculates the shape functions and their derivatives of a point inside 
 % a Quad4 element.
@@ -15,8 +15,8 @@ function [N, dN_dx, dN_dxi, detJ] = quad4_shape_functions_derivatives(...
 % dN_dxi = matrix 2x4 containing the derivatives of the shape functions in 
 %   the natural system. Row 1 corrsponds to derivatives w.r.t. xi and row
 %   2 to derivatives w.r.t. eta.
-% detJ = determinant of the Jacobian matrix of the mapping between:
-%   natural -> cartesian.
+% J = Jacobian matrix of the mapping between natural -> cartesian.
+% detJ = determinant of the J.
 
 xi = natural_coords(1);
 eta = natural_coords(2);

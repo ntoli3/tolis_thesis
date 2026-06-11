@@ -38,7 +38,6 @@ interface_position_y = Ly / 2;
 phi_handle = @(x, y) y - interface_position_y;
 
 % Enrichment
-model.cohesive_interface = 1;
 psi_func = SignEnrichment(); % Π.χ. RampEnrichment, SignEnrichment, RidgeEnrichment
 model.describeLevelSetAndEnrichment(phi_handle, psi_func);
 

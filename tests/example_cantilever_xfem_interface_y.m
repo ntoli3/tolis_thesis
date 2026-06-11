@@ -44,7 +44,6 @@ theta = pi/4;
 phi_handle = @(x, y) (x - x0(1)).*sin(theta) - (y - x0(2)).*cos(theta);
 
 % Enrichment
-model.cohesive_interface = 1;
 psi_func = RidgeEnrichment(); % Π.χ. RampEnrichment, SignEnrichment, RidgeEnrichment
 model.describeLevelSetAndEnrichment(phi_handle, psi_func);
 

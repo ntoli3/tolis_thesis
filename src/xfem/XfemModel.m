@@ -25,6 +25,7 @@ classdef XfemModel < handle
         material_pos = struct('E', 0, 'v', 0, 'thickness', 1); % material gia level set > 0
         material_neg = struct('E', 0, 'v', 0, 'thickness', 1); % material gia level set < 0
         cohesive_interface = 0;
+        Dcoh = []; % Constitutive tensor of the cohesive interface: 2x2 matrix
         
         %% Boundary conditions
         % loads: pinakas (nL x 3) opou nL = arithmos dofs pou exoun fortio. Kathe
@@ -94,6 +95,16 @@ classdef XfemModel < handle
             %     coords = obj.node_coords(n, :);
             %     obj.phi_nodes_all(n) = phi_handle(coords(1), coords(2));
             % end
+        end
+
+        function setCohesiveInterface(obj, kn, kt)
+            % Mark the interface as cohesive. Must be used with StepEnrichment.
+            % Input:
+            % kn = stiffness of the interface material for the opening mode
+            % kt = stiffness of the interface material for the sliding mode
+            
+            obj.cohesive_interface = 1;
+            obj.Dcoh = [kn 0; 0 kt]; 
         end
 
         function setMesh(obj, mesh, node_coords, element_nodes)
@@ -207,31 +218,7 @@ classdef XfemModel < handle
             % Output:
             % ke = the stiffness matrix of the target element
             
-            nodal_coords = obj.extractElementCoordinates(element_id);
-            
-            if obj.elements_category(element_id) == 0 % Standard element
-                if obj.intersected_elements(element_id) > 0
-                    material = obj.material_pos;
-                else
-                    material = obj.material_neg;
-                end
-                ke = quad4_stiffness(nodal_coords, material.E, material.v, material.thickness);
-            
-            else 
-                num_quad_gp = obj.num_quad_points;
-                num_triangle_gp = obj.num_subtriangle_points;
-                if obj.elements_category(element_id) == 1 % Intersected element
-                    gauss_points = integration_with_subtriangles(...
-                        element_id, obj.intersection_mesh, num_triangle_gp);
-                else % Blending element
-                    gauss_points = gauss_integration_quad4(num_quad_gp(1), num_quad_gp(2));
-                end
-                
-                nodal_phi = extractElementLevelSets(obj, element_id);
-                nodal_categories = obj.extractElementNodalCategories(element_id);
-                ke = xquad4_stiffness(nodal_coords, nodal_categories, nodal_phi, obj.psi_func, ...
-                    obj.material_pos, obj.material_neg, gauss_points);    
-            end
+            ke = build_xfem_element_stiffness(obj, element_id);
         end
 
         function [phi] = interpolateLevelSets(obj, element_id, natural_coords)
@@ -300,9 +287,7 @@ classdef XfemModel < handle
                     obj.material_pos, obj.material_neg);
             end
         end
-    end
 
-    methods (Access = private)
         function [elem_coords] = extractElementCoordinates(obj, element_id)
             % Extracts the coordinates of nodes of a specific element.
             % Input

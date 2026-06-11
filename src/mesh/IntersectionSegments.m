@@ -66,23 +66,5 @@ classdef IntersectionSegments < handle
             
             idxs = [segment_index, segment_index+1];
         end
-
-        function n = findNormalOfSegment(obj, segment_index, element_id)
-            % Returns the unit normal vector that points towards the region phi>0 
-            % of a selected segment inside a selected element.
-            % INPUT:
-            % segment_index = Local index of the triangle inside the selected element.
-            % element_id = ID of the element that contains the segment.
-            % OUTPUT:
-            % n = unit normal vector
-            
-            coords = obj.findCartesianCoordsOfSegment(segment_index, element_id);
-            x1 = coords(1,:);
-            x2 = coords(2,:);
-            t = x2 - x1; % tangent vector
-            n = [t(2); -t(1)]; % normal vector
-            n = n / norm(n);
-        end
-
     end
 end

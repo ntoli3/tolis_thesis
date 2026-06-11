@@ -80,12 +80,15 @@ classdef XfemPlotter < handle
             plot_volume_gauss_points(obj.xfem_model, fig, 'r', gauss_point_size);
             
             % Intersection segments
-            if obj.xfem_model.cohesive_interface == 1
-                color_green = [0 0.6 0];
-                plot_intersection_segments(obj.xfem_model, fig, color_green, normal_head_size);
-                color_orange = [1 0.5 0];
-                plot_interface_gauss_points(obj.xfem_model, fig, color_orange, gauss_point_size);
+            if obj.xfem_model.cohesive_interface == 0
+                obj.xfem_model.intersection_segments = create_interface_segments_for_integration(...
+                    obj.xfem_model.intersected_elements, obj.xfem_model.node_coords, ...
+                    obj.xfem_model.element_nodes, obj.xfem_model.phi_nodes_all);
             end
+            color_green = [0 0.6 0];
+            plot_intersection_segments(obj.xfem_model, fig, color_green, normal_head_size);
+            color_orange = [1 0.5 0];
+            plot_interface_gauss_points(obj.xfem_model, fig, color_orange, gauss_point_size);
 
             % Enriched nodes
             node_coords = obj.xfem_model.node_coords;

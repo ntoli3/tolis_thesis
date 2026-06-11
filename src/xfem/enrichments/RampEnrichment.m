@@ -34,6 +34,13 @@ classdef RampEnrichment < EnrichmentInterface
             grad_psi = sign(phi) * grad_phi;
         end
 
+        function [psi_jump] = evaluateJump(obj)
+            % Evaluates the jump: δψ = ψ(x+) - ψ(x-), where x+, x- have the
+            % same coords but lie on different sides of the interface
+
+            psi_jump = 0;
+        end
+
         function [flag] = mustEnrichTangentNodes(obj)
             % Returns 1 if nodes of elements tangent to the LSM interface must
             % be enriched, or 0 if they must not.

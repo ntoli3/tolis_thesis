@@ -24,17 +24,18 @@ for e = 1 : num_elements
        continue
     end
 
-    xew = integration_on_interface_segments(e, intersection_segments, num_segment_gauss_points); % natural system
+    gauss_points = integration_on_interface_segments(...
+        e, intersection_segments, num_segment_gauss_points); % natural system
     
     % Coordinates of this element's nodes
     node_ids = element_nodes(e,:);
     node_coords_element = node_coords_all(node_ids, :);
 
     % Gauss points coords in cartesian system
-    num_gauss_points = size(xew, 1);
+    num_gauss_points = size(gauss_points, 1);
     xy = zeros(num_gauss_points, 2);
     for i = 1 : num_gauss_points
-        xi = xew(i, 1:2);
+        xi = gauss_points(i, 1:2);
         N = quad4_shape_functions(xi);
         xy(i, :) = N * node_coords_element;
     end

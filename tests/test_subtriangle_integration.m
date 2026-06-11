@@ -57,12 +57,31 @@ for e = 1 : num_elements
     if model.elements_category(e) ~= 1
         continue
     end
+
+    % Check in natural system
     gauss_points = integration_with_subtriangles(...
         e, model.intersection_mesh, model.num_subtriangle_points);
-    sum_weights = sum(gauss_points(:,3));
-    quad4_area = 4;
+    sum_weights_natural = sum(gauss_points(:,3));
+    quad4_area_natural = 4;
     tol = 1E-8;
-    if abs(sum_weights - quad4_area) > tol
+    if abs(sum_weights_natural - quad4_area_natural) > tol
+        error("Incorrect integration");
+    end
+
+    % Check in cartesian system
+    node_ids = model.element_nodes(e,:);
+    nodal_coords = model.node_coords(node_ids,:);
+    sum_weights_cartesian = 0;
+    for p = 1 : size(gauss_points, 1)
+        xi = gauss_points(p, 1:2);
+        w = gauss_points(p, 3);
+        [N, dN_dx, dN_dxi, detJ] = quad4_shape_functions_derivatives(xi, nodal_coords);
+        sum_weights_cartesian = sum_weights_cartesian + w * detJ;
+    end
+    dx = nodal_coords(2,1) - nodal_coords(1,1);
+    dy = nodal_coords(4,2) - nodal_coords(1,2);
+    quad4_area_cartesian = dx * dy;
+    if abs(sum_weights_cartesian - quad4_area_cartesian) > tol
         error("Incorrect integration");
     end
 end
