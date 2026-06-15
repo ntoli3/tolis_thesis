@@ -4,14 +4,14 @@
 Lx = 4.0;
 Ly = 0.8;
 t = 0.02;
-E_pos = 200E6; 
-E_neg = 1E2 * E_pos;
+E_pos = 30E6;
+E_neg = 1E3 * E_pos;
 v = 0.3;
-P = 50;
+P = 8;
 
-% Mesh (πχ 16x4, 32x8, 48x12, 64x16 ...), % zugos arithmos  
-nnx = 16; 
-nny = 4;  
+% Mesh (πχ 6x2, 11x3, 21x5 22x6, 44x12, 66x18) % zugos arithmos 
+nnx = 11;  
+nny = 3;
 model = XfemModel();
 [mesh, node_coords, element_nodes] = create_mesh_quad4(nnx, nny, Lx, Ly);
 model.setMesh(mesh, node_coords, element_nodes);
@@ -26,21 +26,27 @@ for n = 1:length(nodes_left)
 end
 
 % Loads
-node_bottom_right = find_single_node_with_xy(Lx, 0, model);
-model.addLoad(node_bottom_right, 2, -P);
-node_top_right = find_single_node_with_xy(Lx, Ly, model);
-model.addLoad(node_top_right, 2, P);
+[nodes_right] = find_nodes_with_x(Lx, model);
+for n = 1:length(nodes_right)
+    node_id = nodes_right(n);
+    model.addLoad(node_id, 2, - P / length(nodes_right));
+end
 
 % Level set
 lsm = LsmInterface();
-% interface_position_x = Lx / 2;
+% dx = Lx / (nnx - 1);
+% interface_position_x = Lx/2; %Lx/2, 2.4
 % phi_handle = @(x, y) x - interface_position_x;
-interface_position_y = Ly / 2;
-phi_handle = @(x, y) y - interface_position_y;
+% %phi_handle = @(x, y) interface_position_x - x;
+
+x0 = [Lx/2, 0];
+theta = pi/2;
+phi_handle = @(x, y) (x - x0(1)).*sin(theta) - (y - x0(2)).*cos(theta);
+
 lsm.addLevelSet(phi_handle);
 
 % Enrichment
-psi_func = SignEnrichment(); % Π.χ. RampEnrichment, SignEnrichment, RidgeEnrichment
+psi_func = RidgeEnrichment(); % Π.χ. RampEnrichment, SignEnrichment, RidgeEnrichment
 model.describeLevelSetAndEnrichment(lsm, psi_func);
 
 % Run analysis
@@ -52,11 +58,11 @@ U = analysis.run();
 plotter = XfemPlotter(model);
 plotter.initialize();
 
-gauss_point_size = 2;
-enriched_node_size = 10;
+gauss_point_size = 6;
+enriched_node_size = 20;
 normal_head_size = 1.5;
 plotter.plotInitialGeometry(gauss_point_size, enriched_node_size, normal_head_size);
 
-scale = 2E1;
+scale = 1E3;
 plotter.plotDisplacements(U, scale);
 plotter.plotStrainsStresses(U, 1, scale);

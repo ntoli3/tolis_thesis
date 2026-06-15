@@ -1,4 +1,4 @@
-close all; clear; clc;
+ close all; clear; clc;
 
 % Problem properties
 Lx = 4.0;
