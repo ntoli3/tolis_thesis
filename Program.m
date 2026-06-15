@@ -10,4 +10,7 @@ addpath(genpath(pwd));
 % example_cantilever_xfem_opening
 % example_cantilever_xfem_cohesive
 % example_cantilever_xfem_coherent
-  Application1 
+% Application1
+% Application2
+% Application3
+% Application4
