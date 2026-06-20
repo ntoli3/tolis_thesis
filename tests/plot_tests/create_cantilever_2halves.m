@@ -1,4 +1,4 @@
-close all; clear; clc;
+function [model] = create_cantilever_2halves()
 
 % Problem properties
 Lx = 4.0;
@@ -49,22 +49,4 @@ lsm.addLevelSet(phi_handle);
 psi_func = RidgeEnrichment(); % Π.χ. RampEnrichment, SignEnrichment, RidgeEnrichment
 model.describeLevelSetAndEnrichment(lsm, psi_func);
 
-% Run analysis
-analysis = LinearStaticAnalysisXfem(model);
-analysis.initialize();
-U = analysis.run();
-
-% Plot results
-plotter = XfemPlotter(model);
-plotter.strain_location = 0; % where to calculate strains/stresses. 0 = at vertices, 1 = at Gauss points + extrapolation, 2 = at face centroids
-plotter.smoothing_type = 2; % 0 = no smoothing, 1 = averaging, 2 = weighted averaging
-plotter.initialize();
-
-gauss_point_size = 6;
-enriched_node_size = 20;
-normal_head_size = 1.5;
-plotter.plotInitialGeometry(gauss_point_size, enriched_node_size, normal_head_size);
-
-scale = 1E3;
-plotter.plotDisplacements(U, scale);
-plotter.plotStrainsStresses(U, scale);
+end

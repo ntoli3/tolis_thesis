@@ -68,8 +68,9 @@ U = analysis.run();
 
 % Plot results
 plotter = XfemPlotter(model);
-plotter.extrapolate_from_gauss_points = 0;
+plotter.strain_location = 1; % 0 = at vertices, 1 = at Gauss points, 2 = at centroids
 plotter.smoothing_type = 2; % 0 = no smoothing, 1 = averaging, 2 = weighted averaging
+plotter.clip_stresses = 99.5;
 plotter.initialize();
 
 gauss_point_size = 6;

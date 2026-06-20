@@ -27,7 +27,7 @@ classdef PlotModel < handle
 
         element_neighbors; % cell array with 1 row vector per element, containing the ids of all neighboring elements 
 
-        coincident_vertices; % cell array with 1 row vector per group of vertices that coincide
+        coincident_vertices; % cell array (num_vertices x 1). Per vertex v it contains 1 row vector with the vertices that coincide with v
         vertex_smoothing_weights; % num_vertices x 1
 
     end
