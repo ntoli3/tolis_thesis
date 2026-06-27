@@ -9,11 +9,11 @@ E_pos = 30E6;
 E_neg = 1E3 * E_pos;
 v = 0.3;
 kn = 1E12;
-kt = 1E6;
+kt = 1E9;
 
 % Mesh (πχ 6x2, 11x3, 21x5 22x6, 44x12, 66x18) % zugos arithmos 
-nnx = 6;  
-nny = 2;
+nnx = 22;  
+nny = 6;
 model = XfemModel();
 [mesh, node_coords, element_nodes] = create_mesh_quad4(nnx, nny, Lx, Ly);
 model.setMesh(mesh, node_coords, element_nodes);
@@ -52,7 +52,7 @@ U = analysis.run();
 plotter = XfemPlotter(model);
 plotter.initialize();
 
-gauss_point_size = 6;
+gauss_point_size = 1.75;
 enriched_node_size = 20;
 normal_head_size = 1.5;
 plotter.plotInitialGeometry(gauss_point_size, enriched_node_size, normal_head_size);
