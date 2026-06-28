@@ -8,7 +8,7 @@ P = 8;
 E_pos = 30E6;
 E_neg = 1E3 * E_pos;
 v = 0.3;
-kn = 1E6;
+kn = 1E12;
 kt = 1E6;
 
 % Mesh (πχ 5x3, 9x5, 21x11, 41x21, 61x31) % zugos arithmos 
@@ -68,6 +68,9 @@ U = analysis.run();
 
 % Plot results
 plotter = XfemPlotter(model);
+plotter.strain_location = 1; % 0 = at vertices, 1 = at Gauss points, 2 = at centroids
+plotter.smoothing_type = 2; % 0 = no smoothing, 1 = averaging, 2 = weighted averaging
+plotter.clip_stresses = 99.5;
 plotter.initialize();
 
 gauss_point_size = 2.5;
@@ -77,4 +80,4 @@ plotter.plotInitialGeometry(gauss_point_size, enriched_node_size, normal_head_si
 
 scale = 1E3;
 plotter.plotDisplacements(U, scale);
-plotter.plotStrainsStresses(U, 1, scale);
+plotter.plotStrainsStresses(U, scale);

@@ -13,7 +13,8 @@ classdef PlotModel < handle
         vertex_regions; % num_vertices x 1: 1 for positive, -1 for negative
 
         vertices_of_faces; % num_faces x 4. For triangles the 4th column has NaN
-        
+        faces_of_vertices; % num_vertices x 1
+
         % Column vector with one entry per face. For each face, the id of
         % its parent element is stored.
         elements_of_faces;
@@ -26,7 +27,8 @@ classdef PlotModel < handle
 
         element_neighbors; % cell array with 1 row vector per element, containing the ids of all neighboring elements 
 
-        coincident_vertices; % cell array with 1 row vector per group of vertices that coincide
+        coincident_vertices; % cell array (num_vertices x 1). Per vertex v it contains 1 row vector with the vertices that coincide with v
+        vertex_smoothing_weights; % num_vertices x 1
 
     end
 
@@ -56,6 +58,7 @@ classdef PlotModel < handle
             obj.vertex_regions = zeros(0, 1);
             obj.elements_of_faces = zeros(0, 1);
             obj.vertices_of_faces = zeros(0, 4);
+            obj.faces_of_vertices = zeros(0, 1);
             obj.faces_of_elements = cell(num_elements, 1);
             %obj.coincident_vertices = cell(0, 1); %TODO later for averaging
             
@@ -70,6 +73,7 @@ classdef PlotModel < handle
             
             obj.findElementNeighbors();
             obj.findCoincidentVertices();
+            obj.findSmoothingWeights();
         end
     end
 
@@ -94,13 +98,14 @@ classdef PlotModel < handle
                 node_id = element_nodes(element_id, n);              
                 obj.vertex_coords_cartesian(end+1,:) = node_coords(node_id,:);
                 obj.vertex_coords_natural(end+1,:) = quad4_natural_coords(n,:);
-                obj.vertex_elements(end+1,1) = element_id;
                 obj.vertex_regions(end+1,1) = region;
+                obj.vertex_elements(end+1,1) = element_id;
+                obj.faces_of_vertices(end+1,1) = face_id;
             end
             
             % The last 4 vertices belong to this face
-            last = size(obj.vertex_coords_cartesian, 1);
-            obj.vertices_of_faces(end+1, :) = last-3 : last;
+            last_vertex = size(obj.vertex_coords_cartesian, 1);
+            obj.vertices_of_faces(end+1, :) = last_vertex-3 : last_vertex;
         end
 
         function addIntersectedElement(obj, element_id)
@@ -140,13 +145,14 @@ classdef PlotModel < handle
                     
                     obj.vertex_coords_natural(end+1,:) = p;
                     obj.vertex_coords_cartesian(end+1,:) = point_coords_cartesian(point,:);
-                    obj.vertex_elements(end+1,1) = element_id;
                     obj.vertex_regions(end+1,1) = region;
+                    obj.vertex_elements(end+1,1) = element_id;
+                    obj.faces_of_vertices(end+1,1) = face_id;
                 end
                 
                 % The last 3 vertices belong to this face + 1 padding
-                last = size(obj.vertex_coords_cartesian, 1);
-                obj.vertices_of_faces(end+1, :) = [last-2 : last, NaN];
+                last_vertex = size(obj.vertex_coords_cartesian, 1);
+                obj.vertices_of_faces(end+1, :) = [last_vertex-2 : last_vertex, NaN];
             end
         end
 
@@ -220,6 +226,26 @@ classdef PlotModel < handle
             end
         end
 
+        function findSmoothingWeights(obj)
+            face_areas = obj.calcFaceAreas();
+
+            num_vertices = length(obj.vertex_regions);
+            obj.vertex_smoothing_weights = zeros(num_vertices, 1);
+            for v = 1 : num_vertices
+                face_id = obj.faces_of_vertices(v);
+                Av = face_areas(face_id);
+                other_vertices = obj.coincident_vertices{v};
+                sumA = 0;
+                for i = 1 : length(other_vertices)
+                    other_vertex_id = other_vertices(i);
+                    other_face_id = obj.faces_of_vertices(other_vertex_id);
+                    Ai = face_areas(other_face_id);
+                    sumA = sumA + Ai;
+                end
+                obj.vertex_smoothing_weights(v) = Av / sumA;
+            end
+        end
+
         function diagonal = calcAvgElementDiagonal(obj, element_ids)
             num_elements = size(element_ids, 1);
             sum = 0;
@@ -235,6 +261,26 @@ classdef PlotModel < handle
                 sum = 0.5 * (diagonal1 + diagonal2);
             end
             diagonal = sum / num_elements;
+        end
+
+        function [face_areas] = calcFaceAreas(obj)
+            % Face areas in cartesian system
+            num_faces = length(obj.elements_of_faces);
+            face_areas = zeros(num_faces, 1);
+            for f = 1 : num_faces
+                vertices = obj.vertices_of_faces(f,:);
+                if isnan(vertices(4)) % triangle
+                    vertices = vertices(1:3);
+                    x = obj.vertex_coords_cartesian(vertices, 1);
+                    y = obj.vertex_coords_cartesian(vertices, 2);
+                    A = 0.5*abs(x(1)*(y(2)-y(3)) + x(2)*(y(3)-y(1)) + x(3)*(y(1)-y(2)));
+                else % quad4
+                    x = obj.vertex_coords_cartesian(vertices, 1);
+                    y = obj.vertex_coords_cartesian(vertices, 2);
+                    A = abs((x(2) - x(1)) * (y(4)-y(1)));
+                end
+                face_areas(f) = A;
+            end
         end
 
     end

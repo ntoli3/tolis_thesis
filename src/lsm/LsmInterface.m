@@ -6,7 +6,7 @@ classdef LsmInterface < handle
     end
 
     methods
-        function obj = LsmInterface(node_coords)
+        function obj = LsmInterface()
             % Constructor
         end
 
