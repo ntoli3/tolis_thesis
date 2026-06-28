@@ -12,5 +12,5 @@ addpath(genpath(pwd));
 % example_cantilever_xfem_coherent
 % Application1
 % Application2
- Application3
-% Application4
+ %Application3
+Application4

@@ -70,7 +70,7 @@ U = analysis.run();
 plotter = XfemPlotter(model);
 plotter.initialize();
 
-gauss_point_size = 6;
+gauss_point_size = 3;
 enriched_node_size = 20;
 normal_head_size = 1.5;
 plotter.plotInitialGeometry(gauss_point_size, enriched_node_size, normal_head_size);
